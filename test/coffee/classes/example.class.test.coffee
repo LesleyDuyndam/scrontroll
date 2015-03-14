@@ -21,6 +21,8 @@ describe 'Class Tracker @subscribers property', ->
   it 'should be an array', ->
     expect( Array.isArray( Tracker.subscribers ) ).toBeTruthy()
 
+  it 'should have a length of 0', ->
+    expect( Tracker.subscribers.length ).toBe( 0 )
 
 
 
@@ -28,12 +30,18 @@ describe 'Class Tracker @subscribers property', ->
 describe 'Class Tracker @subscribe() method', ->
 
   it 'should return true', ->
-    expect( Tracker.subscribe( 'subscribers callback' ) ).toBeTruthy()
 
-  it 'should update the @subscribers property', ->
+    callback = () ->
+      return true
+
+    expect( Tracker.subscribe( callback ) ).toBeTruthy()
+
+  it 'should update the @subscribers property length to 1', ->
     expect( Tracker.subscribers.length ).toBe( 1 )
 
-
+  it 'should have pushed a function to the @subscribers array', ->
+    Expect( Tracker.subscribers[0] ).toBe()
+# @todo finish test
 
 
 
