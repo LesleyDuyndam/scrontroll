@@ -1,14 +1,43 @@
 ###
   EXAMPLE Class test
 ###
+Tracker = new TRACKER()
 
-describe 'Class EXAMPLE', ->
 
-# Assign an instance of the EXAMPLE class to a variable to make it testable
-  example = new EXAMPLE()
 
-  it 'should be defined.', ->
-    expect( example ).toBeDefined()
 
-  it 'should have a method who returns a property with the value true.', ->
-    expect( example.method() ).toBeTruthy()
+
+describe 'Class Tracker', ->
+
+  it 'should be defined', ->
+    expect( Tracker ).toBeDefined()
+
+
+
+
+
+describe 'Class Tracker @subscribers property', ->
+
+  it 'should be an array', ->
+    expect( Array.isArray( Tracker.subscribers ) ).toBeTruthy()
+
+
+
+
+
+describe 'Class Tracker @subscribe() method', ->
+
+  it 'should return true', ->
+    expect( Tracker.subscribe( 'subscribers callback' ) ).toBeTruthy()
+
+  it 'should update the @subscribers property', ->
+    expect( Tracker.subscribers.length ).toBe( 1 )
+
+
+
+
+
+describe 'Class Tracker @broadcast() method', ->
+
+  it 'should be a defined method', ->
+    expect( Tracker.broadcast ).toBeDefined()

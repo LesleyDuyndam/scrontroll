@@ -1,5 +1,0 @@
-###
-  index
-###
-
-indexExample = new EXAMPLE()

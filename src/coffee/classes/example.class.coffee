@@ -2,9 +2,12 @@
   EXAMPLE Class
 ###
 
-class EXAMPLE
+class TRACKER
   constructor: () ->
-    @property = true
+    @subscribers = []
 
-  method: () ->
-    return @property
+  broadcast: () ->
+#    Run all the callbacks
+
+  subscribe: ( callback ) ->
+    @subscribers.push( callback )
