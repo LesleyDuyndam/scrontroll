@@ -20,11 +20,13 @@ module.exports = (config) ->
       {pattern: 'lib/jquery/dist/jquery.js', included: true},
 
     # Load all the CoffeeScripts
-      {pattern: 'src/coffee/classes/*.coffee', included: true},
+      {pattern: 'src/coffee/classes/tracker.class.coffee', included: true},
+      {pattern: 'src/coffee/classes/processor.class.coffee', included: true},
       {pattern: 'src/coffee/*.coffee', included: true},
 
     # Load all the karma tests
-      {pattern: 'test/coffee/classes/*.coffee', included: true},
+      {pattern: 'test/coffee/classes/tracker.class.test.coffee', included: true},
+      {pattern: 'test/coffee/classes/processor.class.test.coffee', included: true},
       {pattern: 'test/coffee/*.test.coffee', included: true}
     ]
 

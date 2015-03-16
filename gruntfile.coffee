@@ -12,7 +12,11 @@ module.exports = (grunt) ->
     coffee: {
       compile:
         files:
-          "dist/scrontroll.js": ["src/coffee/classes/*.coffee", "src/coffee/*.coffee"]
+          "dist/scrontroll.js": [
+            "src/coffee/classes/tracker.class.coffee",
+            "src/coffee/classes/processor.class.coffee",
+            "src/coffee/*.coffee"
+          ]
     },
 
     uglify: {

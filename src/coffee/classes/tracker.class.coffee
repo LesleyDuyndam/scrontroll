@@ -11,62 +11,110 @@
 ###
 
 class TRACKER
-  constructor: ( @options ) ->
+  constructor: ( options ) ->
 
+#    If options are given, attach them
+    { @autostart } = options if options
 
+    @autostart = true if @autostart is undefined
 
-#    Include the window object into the class
     @window = $( window )
-    console.dir @window
 
-
-#    Register if Tracker is hooked to scroll event
     @active = false
 
-
-
-#    Store the registered scroll callbacks
-    @subscribers = []
-
-
-
-
-#    Count the amount of times scroll event is triggered
+    #    Count the amount of times broadcast has been called
     @counter = 0
 
 
+    #    Store the registered scroll callbacks, labeled by name
+    @subscribers =
+      'tracker' : []
+
+
 #   Set active to true (autostart), if not explicitly turned on
-    if @options.autostart is undefined or @options.autostart is true
+    if @autostart
       @start()
 
 
 
-#  Start tracking scroll events
+
+  ###
+
+    Add subscribers callback function to call on broadcast
+
+  ###
+  subscribe: ( name, callback ) =>
+    @subscribers[ name ].push( callback )
+
+
+
+
+  ###
+
+    Broadcast scroll event to subscribers
+
+  ###
+  broadcast: ( name, event ) ->
+    @counter++
+    for callback in @subscribers[ name ]
+      callback( event )
+
+
+
+
+  ###
+
+    Pull needed data from event object and return new object
+
+  ###
+  disassemble: ( event ) ->
+    'offset':
+      'x': event.target.pageXOffset
+      'y': event.target.pageYOffset
+    'timeStamp': event.timeStamp
+
+
+
+
+  ###
+
+    Start listening for scroll events
+
+  ###
   start: () ->
+
+#    Prevent start from binding multiple scroll event listeners to the window
+    if( @active )
+      return false
+
+    #    Bind scroll event listener to the window object
     @window.scroll ( event ) =>
-      @broadcast( event )
+
+#      Broadcast the undressed event to all 'tracker' subscribers on event trigger
+      @broadcast( 'tracker', @disassemble( event ) )
 
     @active = true
 
 
-#  Stop tracking scroll events
+
+
+  ###
+
+    Stop listening for scroll events
+
+  ###
   stop: () ->
     @window.off( 'scroll' )
+
     @active = false
 
 
+
+
+  ###
+
+    Trigger a scroll event manually
+
+  ###
   trigger: () ->
     @window.trigger( 'scroll' )
-
-
-# Add subscribers callback function to call on broadcast
-  subscribe: ( callback ) ->
-    @subscribers.push( callback )
-
-
-
-#  Broadcast scroll event to subscribers
-  broadcast: ( event ) ->
-    @counter++
-    for callback in @subscribers
-      callback( event )
