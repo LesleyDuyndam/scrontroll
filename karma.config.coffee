@@ -17,7 +17,7 @@ module.exports = (config) ->
     files: [
 
     # Load al the libraries your build needs while testing
-      {pattern: 'lib/**/*.js', included: false},
+      {pattern: 'lib/jquery/dist/jquery.js', included: true},
 
     # Load all the CoffeeScripts
       {pattern: 'src/coffee/classes/*.coffee', included: true},

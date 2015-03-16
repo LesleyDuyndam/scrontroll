@@ -1,6 +1,6 @@
 {
   "name": "scrontroll",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Small lib to monitor scroll events and running methods.",
   "keywords": [
     "CoffeeScript",
