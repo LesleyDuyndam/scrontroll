@@ -24,40 +24,32 @@
       if (this.autostart === void 0) {
         this.autostart = true;
       }
-      console.dir(this.autostart);
       this.window = $(window);
-      console.dir(this.window);
       this.active = false;
+      this.counter = 0;
       this.subscribers = {
         'tracker': []
       };
-      this.counter = 0;
-      if (this.autostart === void 0 || this.autostart === true) {
+      if (this.autostart) {
         this.start();
       }
     }
 
-    TRACKER.prototype.start = function() {
-      this.window.scroll((function(_this) {
-        return function(event) {
-          return _this.broadcast('tracker', event);
-        };
-      })(this));
-      return this.active = true;
-    };
 
-    TRACKER.prototype.stop = function() {
-      this.window.off('scroll');
-      return this.active = false;
-    };
-
-    TRACKER.prototype.trigger = function() {
-      return this.window.trigger('scroll');
-    };
+    /*
+    
+      Add subscribers callback function to call on broadcast
+     */
 
     TRACKER.prototype.subscribe = function(name, callback) {
       return this.subscribers[name].push(callback);
     };
+
+
+    /*
+    
+      Broadcast scroll event to subscribers
+     */
 
     TRACKER.prototype.broadcast = function(name, event) {
       var callback, i, len, ref, results;
@@ -69,6 +61,61 @@
         results.push(callback(event));
       }
       return results;
+    };
+
+
+    /*
+    
+      Pull needed data from event object and return new object
+     */
+
+    TRACKER.prototype.disassemble = function(event) {
+      return {
+        'offset': {
+          'x': event.target.pageXOffset,
+          'y': event.target.pageYOffset
+        },
+        'timeStamp': event.timeStamp
+      };
+    };
+
+
+    /*
+    
+      Start listening for scroll events
+     */
+
+    TRACKER.prototype.start = function() {
+      if (this.active) {
+        return false;
+      }
+      this.window.scroll((function(_this) {
+        return function(event) {
+          return _this.broadcast('tracker', _this.disassemble(event));
+        };
+      })(this));
+      return this.active = true;
+    };
+
+
+    /*
+    
+      Stop listening for scroll events
+     */
+
+    TRACKER.prototype.stop = function() {
+      this.window.off('scroll');
+      return this.active = false;
+    };
+
+
+    /*
+    
+      Trigger a scroll event manually
+     */
+
+    TRACKER.prototype.trigger = function() {
+      return this.window.trigger('scroll');
     };
 
     return TRACKER;
@@ -94,19 +141,16 @@
     extend(PROCESSOR, superClass);
 
     function PROCESSOR() {
+      this.index = [];
       PROCESSOR.__super__.constructor.apply(this, arguments);
       this.subscribers.processor = [];
       this.subscribe('tracker', (function(_this) {
         return function(event) {
-          console.dir(event);
-          event = 'Oeps, event is overriden by the PROCESSOR';
-          return _this.broadcast('processor', event);
+          var key;
+          key = _this.index.push(event) - 1;
+          return _this.broadcast('processor', _this.index[key]);
         };
       })(this));
-      this.subscribe('processor', function(event) {
-        console.log('Event passed by processor subscribers');
-        return console.dir(event);
-      });
     }
 
     return PROCESSOR;
