@@ -10,20 +10,19 @@ class SCRONTROLL extends ENGINE
     super
     @subscribers.direction = []
 
-    @subscribe 'engine', @watcher
+    watcher = ( event_key ) =>
+      console.dir @index[ event_key ]
+
+      if( event_key is 0 or @index[ event_key ].direction.x != @index[ event_key - 1 ].direction.x )
+        @broadcast 'direction', @index[ event_key ].direction.x
+
+    @subscribe 'engine', watcher
 
 
 
   watch: ( name, callback ) =>
     @subscribe( name, callback )
 
-
-
-  watcher: ( event_key ) =>
-    console.dir @index[ event_key ]
-
-    if( event_key is 0 or @index[ event_key ].direction.x != @index[ event_key - 1 ].direction.x )
-      @broadcast 'direction', @index[ event_key ].direction.x
 
 
 

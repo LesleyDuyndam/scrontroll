@@ -232,22 +232,23 @@
     extend(SCRONTROLL, superClass);
 
     function SCRONTROLL() {
-      this.watcher = bind(this.watcher, this);
       this.watch = bind(this.watch, this);
+      var watcher;
       SCRONTROLL.__super__.constructor.apply(this, arguments);
       this.subscribers.direction = [];
-      this.subscribe('engine', this.watcher);
+      watcher = (function(_this) {
+        return function(event_key) {
+          console.dir(_this.index[event_key]);
+          if (event_key === 0 || _this.index[event_key].direction.x !== _this.index[event_key - 1].direction.x) {
+            return _this.broadcast('direction', _this.index[event_key].direction.x);
+          }
+        };
+      })(this);
+      this.subscribe('engine', watcher);
     }
 
     SCRONTROLL.prototype.watch = function(name, callback) {
       return this.subscribe(name, callback);
-    };
-
-    SCRONTROLL.prototype.watcher = function(event_key) {
-      console.dir(this.index[event_key]);
-      if (event_key === 0 || this.index[event_key].direction.x !== this.index[event_key - 1].direction.x) {
-        return this.broadcast('direction', this.index[event_key].direction.x);
-      }
     };
 
     return SCRONTROLL;
