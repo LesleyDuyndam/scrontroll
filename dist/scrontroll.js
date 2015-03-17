@@ -158,14 +158,18 @@
     function ENGINE() {
       this.supervisor = bind(this.supervisor, this);
       ENGINE.__super__.constructor.apply(this, arguments);
-      this.subscribers.processor = [];
+      this.subscribers.engine = [];
       this.subscribe('tracker', this.supervisor);
     }
 
     ENGINE.prototype.calc_direction = function(event_key) {
-      var last_event, this_event;
+      var defaults, last_event, this_event;
+      defaults = {
+        'x': 'down',
+        'y': 'right'
+      };
       if (event_key === 0) {
-        return false;
+        return defaults;
       }
       last_event = this.index[event_key - 1];
       this_event = this.index[event_key];
@@ -176,9 +180,13 @@
     };
 
     ENGINE.prototype.calc_speed = function(event_key) {
-      var distance, last_event, this_event, time;
+      var defaults, distance, last_event, this_event, time;
+      defaults = {
+        'x': 0,
+        'y': 0
+      };
       if (event_key === 0) {
-        return false;
+        return defaults;
       }
       last_event = this.index[event_key - 1];
       this_event = this.index[event_key];
@@ -193,7 +201,11 @@
       };
     };
 
-    ENGINE.prototype.supervisor = function(event_key) {};
+    ENGINE.prototype.supervisor = function(event_key) {
+      this.index[event_key].direction = this.calc_direction(event_key);
+      this.index[event_key].speed = this.calc_speed(event_key);
+      return this.broadcast('engine', event_key);
+    };
 
     return ENGINE;
 
