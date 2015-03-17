@@ -8,56 +8,21 @@ root = exports ? this
 
 ###
 
-class root.TRACKER
-  constructor: ( options ) ->
+class root.TRACKER extends root.INIT
+  constructor: () ->
+    super
 
-    @index = []
 
-#    If options are given, attach them
-    { @autostart } = options if options
-
-    @autostart = true if @autostart is undefined
-
-    @window = $( window )
-
+#    Is the tracker registering scroll events
     @active = false
 
-    #    Count the amount of times broadcast has been called
-    @counter = 0
 
+#    Add a new channel to broadcast to
+    @addChannel 'tracker'
 
-    #    Store the registered scroll callbacks, labeled by name
-    @subscribers =
-      'tracker' : []
-
-
-#   Set active to true (autostart), if not explicitly turned on
+#    Start registering scroll events
     if @autostart
       @start()
-
-
-
-
-  ###
-
-    Add subscribers callback function to call on broadcast
-
-  ###
-  subscribe: ( name, callback ) =>
-    @subscribers[ name ].push( callback )
-
-
-
-
-  ###
-
-    Broadcast scroll event_id to subscribers
-
-  ###
-  broadcast: ( name, event_id ) =>
-    @counter++
-    for callback in @subscribers[ name ]
-      callback( event_id )
 
 
 
@@ -68,19 +33,9 @@ class root.TRACKER
 
   ###
   disassemble: ( event ) ->
-
-    if ( event.currentTarget isnt undefined )
-      newEvent =
-        'x': event.currentTarget.pageXOffset
-        'y': event.currentTarget.pageYOffset
-        'timeStamp': event.timeStamp
-    else
-      newEvent =
-        'x': event.target.pageXOffset
-        'y': event.target.pageYOffset
-        'timeStamp': event.timeStamp
-
-    newEvent
+    'y': if event.currentTarget then event.currentTarget.pageYOffset else event.target.pageYOffset
+    'x': if event.currentTarget then event.currentTarget.pageXOffset else event.target.pageXOffset
+    'timeStamp': event.timeStamp
 
 
 
@@ -130,7 +85,6 @@ class root.TRACKER
   ###
   stop: ->
     @window.off( 'scroll' )
-
     @active = false
 
 

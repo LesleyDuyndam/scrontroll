@@ -13,7 +13,7 @@ this_event =
 
 no_event = undefined
 
-describe 'root.direction()', ->
+describe 'root.direction() ----------------------------------------', ->
   it 'should return defaults if prev_event is undefined', ->
     expect( root.direction( this_event, no_event ) ).toEqual({ 'x' : 'atLeft', 'y' : 'atTop' })
 

@@ -13,7 +13,7 @@ root = exports ? this
 class root.SCRONTROLL extends root.ENGINE
   constructor: () ->
     super
-    @subscribers.direction = []
+    @addChannel 'direction'
 
 
 #   Ask 'engine' to notify when it received a new event and is done processing the data.
