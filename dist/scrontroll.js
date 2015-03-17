@@ -162,8 +162,6 @@
       this.subscribe('tracker', this.supervisor);
     }
 
-    ENGINE.prototype.supervisor = function(event_key) {};
-
     ENGINE.prototype.calc_direction = function(event_key) {
       var last_event, this_event;
       if (event_key === 0) {
@@ -176,6 +174,26 @@
         'y': this_event.y >= last_event.y ? 'right' : 'left'
       };
     };
+
+    ENGINE.prototype.calc_speed = function(event_key) {
+      var distance, last_event, this_event, time;
+      if (event_key === 0) {
+        return false;
+      }
+      last_event = this.index[event_key - 1];
+      this_event = this.index[event_key];
+      time = this_event.timeStamp - last_event.timeStamp;
+      distance = {
+        'x': Math.abs(this_event.x - last_event.x),
+        'y': Math.abs(this_event.y - last_event.x)
+      };
+      return {
+        'x': (distance.x / time) * 1000,
+        'y': (distance.y / time) * 1000
+      };
+    };
+
+    ENGINE.prototype.supervisor = function(event_key) {};
 
     return ENGINE;
 
