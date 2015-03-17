@@ -1,62 +1,72 @@
+root = exports ? this
+
 ###
-  PROCESSOR Class
+
+  ENGINE Class
   extends TRACKER class
 
-  Receives new input from the TRACKER and processes it to usable data
+  1. Engine
+    - receives new input on scroll event from the TRACKER
+
+  2. @supervisor
+    - Delegates input to the factories
+    - Adds factory output to event in the @index[]
+    - Broadcast event key when done, so subscribers know something changed
+
 ###
 
-class ENGINE extends TRACKER
+class root.ENGINE extends root.TRACKER
   constructor: () ->
     super
     @subscribers.engine = []
 
+#   Ask tracker to be notified when scroll event is triggered and execute @supervisor
     @subscribe 'tracker', @supervisor
 
 
-  calc_direction: ( event_key ) ->
-
-    defaults =
-      'x' : 'down'
-      'y' : 'right'
-
-    return defaults if event_key is 0
-
-    last_event = @index[ event_key - 1 ]
-    this_event = @index[ event_key ]
-
-#    Scroll directions
-    return {
-      'x': if this_event.x >= last_event.x then 'down' else 'up',
-      'y': if this_event.y >= last_event.y then 'right' else 'left'
-    }
-
-  calc_speed: ( event_key ) ->
-
-    defaults =
-      'x' : 0
-      'y' : 0
-
-    return defaults if event_key is 0
-
-    last_event = @index[ event_key - 1 ]
-    this_event = @index[ event_key ]
-
-    time = this_event.timeStamp - last_event.timeStamp
-
-    distance = {
-      'x' : Math.abs( this_event.x - last_event.x )
-      'y' : Math.abs( this_event.y - last_event.x )
-    }
-
-#    Pixels per seconds
-    return {
-      'x': ( distance.x / time ) * 1000
-      'y': ( distance.y / time ) * 1000
-    }
 
 
-  supervisor: ( event_key ) =>
-    @index[ event_key ].direction = @calc_direction( event_key )
-    @index[ event_key ].speed = @calc_speed( event_key )
 
-    @broadcast 'engine', event_key
+  ###
+
+    @supervisor() | Run tasks
+
+      - Delegates input to the factories
+      - Adds factory output to event in the @index[]
+      - Broadcast event key when done, so subscribers know something changed
+
+    arguments
+      event_id = 'String'
+
+    returns
+      event_id = 'String'
+
+  ###
+  supervisor: ( event_id ) =>
+
+#   Declare the current and previous events so the factories can process the data
+    this_event = @index[ event_id ]
+    prev_event = @index[ event_id - 1 ]
+
+
+
+#   Calculate the direction and store the output in the @index[ this_event ]
+    this_event.direction = root.direction( this_event, prev_event )
+
+
+
+
+#   Calculate the speed and store the output in the @index[ this_event ]
+    this_event.speed = root.speed( this_event, prev_event )
+
+
+
+
+#   Notify the engine subscribers that a new event has been triggered and manipulated
+    @broadcast 'engine', event_id
+
+
+
+
+#   Return the current event_id
+    event_id
