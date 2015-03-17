@@ -15,12 +15,16 @@ describe 'Class Tracker', ->
   callback = null
 
   beforeEach ->
-    Tracker = new TRACKER(
+    Tracker = new TRACKER
       autostart : false
-    )
 
-    callback = () ->
+
+    callback = ( event_key ) ->
       return true
+
+      Tracker.subscribe 'tracker', callback
+
+
 
 
 
@@ -63,12 +67,6 @@ describe 'Class Tracker', ->
 
 
 
-  describe '@subscribers.tracker', ->
-    it 'should be an ARRAY.', ->
-      expect( Array.isArray( Tracker.subscribers.tracker ) ).toBeTruthy()
-
-
-
 
   describe '@counter', ->
     it 'should be defined', ->
@@ -84,9 +82,6 @@ describe 'Class Tracker', ->
     it 'should be a defined method.', ->
       expect( Tracker.subscribe ).toBeDefined()
 
-    it 'should be a an array.', ->
-      expect( Tracker.subscribe ).toBeDefined()
-
     it 'should return TRUE.', ->
       expect( Tracker.subscribe( 'tracker', callback ) ).toBeTruthy()
 
@@ -99,6 +94,13 @@ describe 'Class Tracker', ->
       expect( Tracker.subscribers.tracker[0]() ).toBe( true )
 
 
+
+
+  describe '@subscribers.tracker', ->
+    it 'should be an ARRAY.', ->
+      Tracker.subscribe( 'tracker', callback )
+
+      expect( Array.isArray( Tracker.subscribers.tracker ) ).toBeTruthy()
 
 
   describe '@broadcast()', ->
@@ -131,6 +133,10 @@ describe 'Class Tracker', ->
       Tracker.storeEvent( 'Dummy filling' )
 
       expect( Tracker.storeEvent( 'someData' ) ).toEqual( 1 )
+
+
+
+
 
 
   describe '@start()', ->

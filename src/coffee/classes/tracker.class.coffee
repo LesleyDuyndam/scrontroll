@@ -57,7 +57,7 @@ class TRACKER
     Broadcast scroll event_key to subscribers
 
   ###
-  broadcast: ( name, event_key ) ->
+  broadcast: ( name, event_key ) =>
     @counter++
     for callback in @subscribers[ name ]
       callback( event_key )

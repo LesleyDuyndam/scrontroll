@@ -55,8 +55,6 @@ class ENGINE extends TRACKER
     }
 
 
-
-
   supervisor: ( event_key ) =>
     @index[ event_key ].direction = @calc_direction( event_key )
     @index[ event_key ].speed = @calc_speed( event_key )

@@ -1,5 +1,5 @@
 ###
-  PROCESSOR Class test
+  ENGINE Class test
 ###
 
 events = [{
