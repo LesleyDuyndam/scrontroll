@@ -18,6 +18,8 @@
   TRACKER = (function() {
     function TRACKER(options) {
       this.subscribe = bind(this.subscribe, this);
+      this.index = [];
+      this.current_key = 0;
       if (options) {
         this.autostart = options.autostart;
       }
@@ -48,17 +50,17 @@
 
     /*
     
-      Broadcast scroll event to subscribers
+      Broadcast scroll event_key to subscribers
      */
 
-    TRACKER.prototype.broadcast = function(name, event) {
+    TRACKER.prototype.broadcast = function(name, event_key) {
       var callback, i, len, ref, results;
       this.counter++;
       ref = this.subscribers[name];
       results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         callback = ref[i];
-        results.push(callback(event));
+        results.push(callback(event_key));
       }
       return results;
     };
@@ -71,12 +73,21 @@
 
     TRACKER.prototype.disassemble = function(event) {
       return {
-        'offset': {
-          'x': event.target.pageXOffset,
-          'y': event.target.pageYOffset
-        },
+        'x': event.target.pageXOffset,
+        'y': event.target.pageYOffset,
         'timeStamp': event.timeStamp
       };
+    };
+
+
+    /*
+    
+      Store the event in the @index[]
+      Set the current_key to the new key
+     */
+
+    TRACKER.prototype.storeEvent = function(event) {
+      return this.current_key = this.index.push(event) - 1;
     };
 
 
@@ -90,8 +101,11 @@
         return false;
       }
       this.window.scroll((function(_this) {
-        return function(event) {
-          return _this.broadcast('tracker', _this.disassemble(event));
+        return function(rawEvent) {
+          var event, event_key;
+          event = _this.disassemble(rawEvent);
+          event_key = _this.storeEvent(event);
+          return _this.broadcast('tracker', event_key);
         };
       })(this));
       return this.active = true;
@@ -133,27 +147,37 @@
  */
 
 (function() {
-  var PROCESSOR,
+  var ENGINE,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  PROCESSOR = (function(superClass) {
-    extend(PROCESSOR, superClass);
+  ENGINE = (function(superClass) {
+    extend(ENGINE, superClass);
 
-    function PROCESSOR() {
-      this.index = [];
-      PROCESSOR.__super__.constructor.apply(this, arguments);
+    function ENGINE() {
+      this.supervisor = bind(this.supervisor, this);
+      ENGINE.__super__.constructor.apply(this, arguments);
       this.subscribers.processor = [];
-      this.subscribe('tracker', (function(_this) {
-        return function(event) {
-          var key;
-          key = _this.index.push(event) - 1;
-          return _this.broadcast('processor', _this.index[key]);
-        };
-      })(this));
+      this.subscribe('tracker', this.supervisor);
     }
 
-    return PROCESSOR;
+    ENGINE.prototype.supervisor = function(event_key) {};
+
+    ENGINE.prototype.calc_direction = function(event_key) {
+      var last_event, this_event;
+      if (event_key === 0) {
+        return false;
+      }
+      last_event = this.index[event_key - 1];
+      this_event = this.index[event_key];
+      return {
+        'x': this_event.x >= last_event.x ? 'down' : 'up',
+        'y': this_event.y >= last_event.y ? 'right' : 'left'
+      };
+    };
+
+    return ENGINE;
 
   })(TRACKER);
 
