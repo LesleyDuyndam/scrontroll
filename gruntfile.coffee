@@ -14,6 +14,7 @@ module.exports = (grunt) ->
         files:
           "dist/scrontroll.js": [
             "src/coffee/factories/**/*.factory.coffee",
+            "src/coffee/classes/init.class.coffee",
             "src/coffee/classes/tracker.class.coffee",
             "src/coffee/classes/engine.class.coffee",
             "src/coffee/*.coffee"
