@@ -13,6 +13,9 @@
 class TRACKER
   constructor: ( options ) ->
 
+    @index = []
+    @current_key = 0
+
 #    If options are given, attach them
     { @autostart } = options if options
 
@@ -51,13 +54,13 @@ class TRACKER
 
   ###
 
-    Broadcast scroll event to subscribers
+    Broadcast scroll event_key to subscribers
 
   ###
-  broadcast: ( name, event ) ->
+  broadcast: ( name, event_key ) ->
     @counter++
     for callback in @subscribers[ name ]
-      callback( event )
+      callback( event_key )
 
 
 
@@ -68,10 +71,22 @@ class TRACKER
 
   ###
   disassemble: ( event ) ->
-    'offset':
-      'x': event.target.pageXOffset
-      'y': event.target.pageYOffset
+    'x': event.target.pageXOffset
+    'y': event.target.pageYOffset
     'timeStamp': event.timeStamp
+
+
+
+
+  ###
+
+    Store the event in the @index[]
+    Set the current_key to the new key
+
+  ###
+  storeEvent: ( event ) ->
+
+    @current_key = @index.push( event ) - 1
 
 
 
@@ -81,17 +96,20 @@ class TRACKER
     Start listening for scroll events
 
   ###
-  start: () ->
+  start: ->
 
 #    Prevent start from binding multiple scroll event listeners to the window
     if( @active )
       return false
 
     #    Bind scroll event listener to the window object
-    @window.scroll ( event ) =>
+    @window.scroll ( rawEvent ) =>
 
-#      Broadcast the undressed event to all 'tracker' subscribers on event trigger
-      @broadcast( 'tracker', @disassemble( event ) )
+      event = @disassemble( rawEvent )
+
+      event_key = @storeEvent( event )
+
+      @broadcast( 'tracker', event_key )
 
     @active = true
 
@@ -103,7 +121,7 @@ class TRACKER
     Stop listening for scroll events
 
   ###
-  stop: () ->
+  stop: ->
     @window.off( 'scroll' )
 
     @active = false
@@ -116,5 +134,5 @@ class TRACKER
     Trigger a scroll event manually
 
   ###
-  trigger: () ->
+  trigger: ->
     @window.trigger( 'scroll' )

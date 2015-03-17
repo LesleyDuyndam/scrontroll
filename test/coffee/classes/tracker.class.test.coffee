@@ -10,16 +10,28 @@ describe 'jQuery', ->
 
 
 describe 'Class Tracker', ->
-  Tracker = new TRACKER(
-    autostart : false
-  )
+
+  Tracker = null
+  callback = null
+
+  beforeEach ->
+    Tracker = new TRACKER(
+      autostart : false
+    )
+
+    callback = () ->
+      return true
+
+
+
   it 'should be defined', ->
+    console.dir Tracker
     expect( Tracker ).toBeDefined()
 
 
 
 
-  describe 'PROPERTY: @autostart', ->
+  describe '@autostart', ->
     it 'should be defined', ->
       expect( Tracker.autostart ).toBeDefined()
 
@@ -28,14 +40,14 @@ describe 'Class Tracker', ->
 
 
 
-  describe 'PROPERTY: @window', ->
+  describe '@window', ->
     it 'should be defined.', ->
       expect( Tracker.window ).toBeDefined()
 
 
 
 
-  describe 'PROPERTY: @active', ->
+  describe '@active', ->
     it 'should be defined.', ->
       expect( Tracker.active ).toBeDefined()
 
@@ -45,20 +57,20 @@ describe 'Class Tracker', ->
 
 
 
-  describe 'PROPERTY: @subscribers', ->
+  describe '@subscribers', ->
     it 'should be defined.', ->
       expect( Tracker.subscribers ).toBeTruthy()
 
 
 
-  describe 'PROPERTY: @subscribers.tracker', ->
+  describe '@subscribers.tracker', ->
     it 'should be an ARRAY.', ->
       expect( Array.isArray( Tracker.subscribers.tracker ) ).toBeTruthy()
 
 
 
 
-  describe 'PROPERTY: @counter', ->
+  describe '@counter', ->
     it 'should be defined', ->
       expect( Tracker.counter ).toBeDefined()
 
@@ -68,10 +80,7 @@ describe 'Class Tracker', ->
 
 
 
-  describe 'METHOD  : @subscribe().', ->
-    callback = () ->
-      return true
-
+  describe '@subscribe().', ->
     it 'should be a defined method.', ->
       expect( Tracker.subscribe ).toBeDefined()
 
@@ -82,22 +91,24 @@ describe 'Class Tracker', ->
       expect( Tracker.subscribe( 'tracker', callback ) ).toBeTruthy()
 
     it 'should update the @subscribers property, so its length is > 0.', ->
+      Tracker.subscribe( 'tracker', callback )
       expect( Tracker.subscribers.tracker.length ).not.toBe( 0 )
 
     it 'should have pushed a ( testing ) callback function to the @subscribers array which returns TRUE.', ->
+      Tracker.subscribe( 'tracker', callback )
       expect( Tracker.subscribers.tracker[0]() ).toBe( true )
 
 
 
 
-  describe 'METHOD  : @broadcast()', ->
+  describe '@broadcast()', ->
     it 'should be a defined method.', ->
       expect( Tracker.broadcast ).toBeDefined()
 
 
 
 
-  describe 'METHOD  : @disassemble', ->
+  describe '@disassemble', ->
     it 'should be a defined method.', ->
       expect( Tracker.disassemble ).toBeDefined()
 
@@ -109,16 +120,20 @@ describe 'Class Tracker', ->
 
     it 'should return a disassembled object', ->
       expect( Tracker.disassemble( event ) ).toEqual(
-        'offset' :
-          'x' : 0
-          'y' : 0
+        'x' : 0
+        'y' : 0
         'timeStamp' : 10
       )
 
 
+  describe '@storeEvent', ->
+    it 'should push an event to the index', ->
+      Tracker.storeEvent( 'Dummy filling' )
+
+      expect( Tracker.storeEvent( 'someData' ) ).toEqual( 1 )
 
 
-  describe 'METHOD  : @start()', ->
+  describe '@start()', ->
     it 'should turn window scroll events on', ->
       expect( Tracker.start() ).toBeTruthy()
 
@@ -129,16 +144,14 @@ describe 'Class Tracker', ->
     it 'should update the counter after a event trigger', ->
 
       Tracker.start()
-
-      counterBeforeTrigger = Tracker.counter
       Tracker.trigger()
 
-      expect( Tracker.counter ).toBe( counterBeforeTrigger + 1 )
+      expect( Tracker.counter ).toBe( 1 )
 
 
 
 
-  describe 'METHOD  : @stop()', ->
+  describe '@stop()', ->
     it 'should be a defined method.', ->
       expect( Tracker.stop ).toBeDefined()
 
@@ -147,7 +160,6 @@ describe 'Class Tracker', ->
 
     it 'should NOT update the counter after a event trigger', ->
 
-      counterBeforeTrigger = Tracker.counter
       Tracker.trigger()
 
-      expect( Tracker.counter ).toBe( counterBeforeTrigger )
+      expect( Tracker.counter ).toBe( 0 )
