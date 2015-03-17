@@ -42,12 +42,6 @@ describe 'Class Engine', ->
     expect( Engine ).toBeDefined()
 
 
-  describe '@supervisor', ->
-    it 'should be defined', ->
-      expect( Engine.supervisor ).toBeDefined()
-
-
-
   describe '@calc_direction', ->
     it 'should return false if first event', ->
       expect( Engine.calc_direction( 0 ) ).toBeFalsy()
@@ -56,9 +50,27 @@ describe 'Class Engine', ->
 
       directions = Engine.calc_direction( 2 )
 
-      console.dir directions
-
       expect( directions ).toEqual({
-        x : 'down',
+        x : 'down'
         y : 'right'
       })
+
+
+  describe '@calc_speed', ->
+    it 'should return an integer', ->
+
+      speed = Engine.calc_speed( 2 )
+
+      console.dir speed
+
+      expect( speed ).toEqual({
+        x : 10
+        y : 10
+      })
+
+
+
+
+  describe '@supervisor', ->
+    it 'should be defined', ->
+      expect( Engine.supervisor ).toBeDefined()
