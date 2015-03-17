@@ -17,6 +17,7 @@
 
   TRACKER = (function() {
     function TRACKER(options) {
+      this.broadcast = bind(this.broadcast, this);
       this.subscribe = bind(this.subscribe, this);
       this.index = [];
       this.current_key = 0;
@@ -213,7 +214,44 @@
 
 }).call(this);
 
-(function() {
 
+/*
+  PROCESSOR Class
+  extends TRACKER class
+
+  Receives new input from the TRACKER and processes it to usable data
+ */
+
+(function() {
+  var SCRONTROLL,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  SCRONTROLL = (function(superClass) {
+    extend(SCRONTROLL, superClass);
+
+    function SCRONTROLL() {
+      this.watcher = bind(this.watcher, this);
+      this.watch = bind(this.watch, this);
+      SCRONTROLL.__super__.constructor.apply(this, arguments);
+      this.subscribers.direction = [];
+      this.subscribe('engine', this.watcher);
+    }
+
+    SCRONTROLL.prototype.watch = function(name, callback) {
+      return this.subscribe(name, callback);
+    };
+
+    SCRONTROLL.prototype.watcher = function(event_key) {
+      console.dir(this.index[event_key]);
+      if (event_key === 0 || this.index[event_key].direction.x !== this.index[event_key - 1].direction.x) {
+        return this.broadcast('direction', this.index[event_key].direction.x);
+      }
+    };
+
+    return SCRONTROLL;
+
+  })(ENGINE);
 
 }).call(this);
