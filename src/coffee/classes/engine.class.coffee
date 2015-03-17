@@ -8,14 +8,18 @@
 class ENGINE extends TRACKER
   constructor: () ->
     super
-    @subscribers.processor = []
+    @subscribers.engine = []
 
     @subscribe 'tracker', @supervisor
 
 
   calc_direction: ( event_key ) ->
 
-    return false if event_key is 0
+    defaults =
+      'x' : 'down'
+      'y' : 'right'
+
+    return defaults if event_key is 0
 
     last_event = @index[ event_key - 1 ]
     this_event = @index[ event_key ]
@@ -28,7 +32,11 @@ class ENGINE extends TRACKER
 
   calc_speed: ( event_key ) ->
 
-    return false if event_key is 0
+    defaults =
+      'x' : 0
+      'y' : 0
+
+    return defaults if event_key is 0
 
     last_event = @index[ event_key - 1 ]
     this_event = @index[ event_key ]
@@ -50,7 +58,7 @@ class ENGINE extends TRACKER
 
 
   supervisor: ( event_key ) =>
-#    console.dir @index
+    @index[ event_key ].direction = @calc_direction( event_key )
+    @index[ event_key ].speed = @calc_speed( event_key )
 
-#    Push new scroll event to index
-#    @current_key = @index.push( event ) - 1
+    @broadcast 'engine', event_key

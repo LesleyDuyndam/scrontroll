@@ -105,11 +105,11 @@ class TRACKER
     #    Bind scroll event listener to the window object
     @window.scroll ( rawEvent ) =>
 
-      event = @disassemble( rawEvent )
+      event = @disassemble rawEvent
 
-      event_key = @storeEvent( event )
+      event_key = @storeEvent event
 
-      @broadcast( 'tracker', event_key )
+      @broadcast 'tracker', event_key
 
     @active = true
 
