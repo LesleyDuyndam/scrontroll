@@ -18,8 +18,8 @@ events = [{
 ]
 
 singleEvent =
-  'x': 10
-  'y': 10
+  'x': 15
+  'y': 15
   'timeStamp': 1426546663427
 
 
@@ -39,6 +39,23 @@ describe 'Class Scrontroll', ->
   it 'should be defined', ->
     console.dir Scrontroll
     expect( Scrontroll ).toBeDefined()
+
+
+
+
+  describe '@controller', ->
+    it 'should be defined', ->
+      expect( Scrontroll.controller ).toBeDefined()
+
+    it 'should return FALSE (value did not change, do nothing', ->
+      expect( Scrontroll.controller( 2 ) ).toEqual( false )
+
+    it 'should return "down"', ->
+      Scrontroll.broadcast 'tracker', Scrontroll.storeEvent singleEvent
+      expect( Scrontroll.controller( 3 ) ).toEqual( 'up' )
+
+
+
 
   describe '@watch()', ->
     it 'should subscribe a callback', ->

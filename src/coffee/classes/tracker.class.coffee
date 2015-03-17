@@ -1,20 +1,17 @@
+root = exports ? this
+
 ###
+
   TRACKER Class
 
-  1. Registers the scroll callbacks
-  2. Start/ Stop tracking
-  3. Call callbacks on event
+  1. TRACKER | receives new input on scroll event from event listener
 
-  arguments = {
-    autostart: boolean
-  }
 ###
 
-class TRACKER
+class root.TRACKER
   constructor: ( options ) ->
 
     @index = []
-    @current_key = 0
 
 #    If options are given, attach them
     { @autostart } = options if options
@@ -54,26 +51,36 @@ class TRACKER
 
   ###
 
-    Broadcast scroll event_key to subscribers
+    Broadcast scroll event_id to subscribers
 
   ###
-  broadcast: ( name, event_key ) =>
+  broadcast: ( name, event_id ) =>
     @counter++
     for callback in @subscribers[ name ]
-      callback( event_key )
+      callback( event_id )
 
 
 
 
   ###
 
-    Pull needed data from event object and return new object
+    Pull needed data from event OBJECT and return new OBJECT
 
   ###
   disassemble: ( event ) ->
-    'x': event.target.pageXOffset
-    'y': event.target.pageYOffset
-    'timeStamp': event.timeStamp
+
+    if ( event.currentTarget isnt undefined )
+      newEvent =
+        'x': event.currentTarget.pageXOffset
+        'y': event.currentTarget.pageYOffset
+        'timeStamp': event.timeStamp
+    else
+      newEvent =
+        'x': event.target.pageXOffset
+        'y': event.target.pageYOffset
+        'timeStamp': event.timeStamp
+
+    newEvent
 
 
 
@@ -81,12 +88,12 @@ class TRACKER
   ###
 
     Store the event in the @index[]
-    Set the current_key to the new key
+    return the event_id
 
   ###
   storeEvent: ( event ) ->
 
-    @current_key = @index.push( event ) - 1
+    @index.push( event ) - 1
 
 
 
@@ -107,9 +114,9 @@ class TRACKER
 
       event = @disassemble rawEvent
 
-      event_key = @storeEvent event
+      event_id = @storeEvent event
 
-      @broadcast 'tracker', event_key
+      @broadcast 'tracker', event_id
 
     @active = true
 

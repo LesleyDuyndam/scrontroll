@@ -1,26 +1,109 @@
+(function() {
+  var root;
 
-/*
-  TRACKER Class
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
-  1. Registers the scroll callbacks
-  2. Start/ Stop tracking
-  3. Call callbacks on event
 
-  arguments = {
-    autostart: boolean
-  }
- */
+  /*
+  
+    direction() factory
+  
+    Gets the current and previous event as a argument. It calculates the scroll direction
+    and returns the results as an object.
+  
+    returns {
+     y : atTop || up || atBottom || down
+     x : atLeft || left || atRight || right
+   */
+
+  root.direction = function(this_event, prev_event) {
+    var defaults;
+    defaults = {
+      'y': 'atTop',
+      'x': 'atLeft'
+    };
+
+    /*
+    
+      If the event got triggered for the first time, there is no previous event to calculate
+      with. Return the defaults instead.
+     */
+    if (prev_event === void 0) {
+      return defaults;
+    }
+    return {
+      'y': this_event.y >= prev_event.y ? 'down' : 'up',
+      'x': this_event.x >= prev_event.x ? 'right' : 'left'
+    };
+  };
+
+}).call(this);
 
 (function() {
-  var TRACKER,
+  var root;
+
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+
+  /*
+  
+    direction factory
+  
+    Gets the current and previous event as a argument. It calculates the scroll direction
+    and returns the results as an object.
+  
+    returns {
+     y : atTop || up || atBottom || down
+     x : atLeft || left || atRight || right
+   */
+
+  root.speed = function(this_event, prev_event) {
+    var defaults, distance, time;
+    defaults = {
+      'y': 0,
+      'x': 0
+    };
+
+    /*
+    
+      If the event got triggered for the first time, there is no previous event to calculate
+      with. Return the defaults instead.
+     */
+    if (prev_event === void 0) {
+      return defaults;
+    }
+    time = this_event.timeStamp - prev_event.timeStamp;
+    distance = {
+      'y': Math.abs(this_event.y - prev_event.x),
+      'x': Math.abs(this_event.x - prev_event.x)
+    };
+    return {
+      'y': (distance.y / time) * 1000,
+      'x': (distance.x / time) * 1000
+    };
+  };
+
+}).call(this);
+
+(function() {
+  var root,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  TRACKER = (function() {
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+
+  /*
+  
+    TRACKER Class
+  
+    1. TRACKER | receives new input on scroll event from event listener
+   */
+
+  root.TRACKER = (function() {
     function TRACKER(options) {
       this.broadcast = bind(this.broadcast, this);
       this.subscribe = bind(this.subscribe, this);
       this.index = [];
-      this.current_key = 0;
       if (options) {
         this.autostart = options.autostart;
       }
@@ -51,17 +134,17 @@
 
     /*
     
-      Broadcast scroll event_key to subscribers
+      Broadcast scroll event_id to subscribers
      */
 
-    TRACKER.prototype.broadcast = function(name, event_key) {
+    TRACKER.prototype.broadcast = function(name, event_id) {
       var callback, i, len, ref, results;
       this.counter++;
       ref = this.subscribers[name];
       results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         callback = ref[i];
-        results.push(callback(event_key));
+        results.push(callback(event_id));
       }
       return results;
     };
@@ -69,26 +152,36 @@
 
     /*
     
-      Pull needed data from event object and return new object
+      Pull needed data from event OBJECT and return new OBJECT
      */
 
     TRACKER.prototype.disassemble = function(event) {
-      return {
-        'x': event.target.pageXOffset,
-        'y': event.target.pageYOffset,
-        'timeStamp': event.timeStamp
-      };
+      var newEvent;
+      if (event.currentTarget !== void 0) {
+        newEvent = {
+          'x': event.currentTarget.pageXOffset,
+          'y': event.currentTarget.pageYOffset,
+          'timeStamp': event.timeStamp
+        };
+      } else {
+        newEvent = {
+          'x': event.target.pageXOffset,
+          'y': event.target.pageYOffset,
+          'timeStamp': event.timeStamp
+        };
+      }
+      return newEvent;
     };
 
 
     /*
     
       Store the event in the @index[]
-      Set the current_key to the new key
+      return the event_id
      */
 
     TRACKER.prototype.storeEvent = function(event) {
-      return this.current_key = this.index.push(event) - 1;
+      return this.index.push(event) - 1;
     };
 
 
@@ -103,10 +196,10 @@
       }
       this.window.scroll((function(_this) {
         return function(rawEvent) {
-          var event, event_key;
+          var event, event_id;
           event = _this.disassemble(rawEvent);
-          event_key = _this.storeEvent(event);
-          return _this.broadcast('tracker', event_key);
+          event_id = _this.storeEvent(event);
+          return _this.broadcast('tracker', event_id);
         };
       })(this));
       return this.active = true;
@@ -139,21 +232,30 @@
 
 }).call(this);
 
-
-/*
-  PROCESSOR Class
-  extends TRACKER class
-
-  Receives new input from the TRACKER and processes it to usable data
- */
-
 (function() {
-  var ENGINE,
+  var root,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  ENGINE = (function(superClass) {
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+
+  /*
+  
+    ENGINE Class
+    extends TRACKER class
+  
+    1. Engine
+      - receives new input on scroll event from the TRACKER
+  
+    2. @supervisor
+      - Delegates input to the factories
+      - Adds factory output to event in the @index[]
+      - Broadcast event key when done, so subscribers know something changed
+   */
+
+  root.ENGINE = (function(superClass) {
     extend(ENGINE, superClass);
 
     function ENGINE() {
@@ -163,89 +265,104 @@
       this.subscribe('tracker', this.supervisor);
     }
 
-    ENGINE.prototype.calc_direction = function(event_key) {
-      var defaults, last_event, this_event;
-      defaults = {
-        'x': 'down',
-        'y': 'right'
-      };
-      if (event_key === 0) {
-        return defaults;
-      }
-      last_event = this.index[event_key - 1];
-      this_event = this.index[event_key];
-      return {
-        'x': this_event.x >= last_event.x ? 'down' : 'up',
-        'y': this_event.y >= last_event.y ? 'right' : 'left'
-      };
-    };
 
-    ENGINE.prototype.calc_speed = function(event_key) {
-      var defaults, distance, last_event, this_event, time;
-      defaults = {
-        'x': 0,
-        'y': 0
-      };
-      if (event_key === 0) {
-        return defaults;
-      }
-      last_event = this.index[event_key - 1];
-      this_event = this.index[event_key];
-      time = this_event.timeStamp - last_event.timeStamp;
-      distance = {
-        'x': Math.abs(this_event.x - last_event.x),
-        'y': Math.abs(this_event.y - last_event.x)
-      };
-      return {
-        'x': (distance.x / time) * 1000,
-        'y': (distance.y / time) * 1000
-      };
-    };
+    /*
+    
+      @supervisor() | Run tasks
+    
+        - Delegates input to the factories
+        - Adds factory output to event in the @index[]
+        - Broadcast event key when done, so subscribers know something changed
+    
+      arguments
+        event_id = 'String'
+    
+      returns
+        event_id = 'String'
+     */
 
-    ENGINE.prototype.supervisor = function(event_key) {
-      this.index[event_key].direction = this.calc_direction(event_key);
-      this.index[event_key].speed = this.calc_speed(event_key);
-      return this.broadcast('engine', event_key);
+    ENGINE.prototype.supervisor = function(event_id) {
+      var prev_event, this_event;
+      this_event = this.index[event_id];
+      prev_event = this.index[event_id - 1];
+      this_event.direction = root.direction(this_event, prev_event);
+      this_event.speed = root.speed(this_event, prev_event);
+      this.broadcast('engine', event_id);
+      return event_id;
     };
 
     return ENGINE;
 
-  })(TRACKER);
+  })(root.TRACKER);
 
 }).call(this);
 
-
-/*
-  PROCESSOR Class
-  extends TRACKER class
-
-  Receives new input from the TRACKER and processes it to usable data
- */
-
 (function() {
-  var SCRONTROLL,
+  var root,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  SCRONTROLL = (function(superClass) {
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+
+  /*
+  
+    SCRONTROLL Class
+    extends ENGINE class
+  
+    SCRONTROLL
+      - receives a notification from the 'engine' when a new event has been triggered and processed.
+   */
+
+  root.SCRONTROLL = (function(superClass) {
     extend(SCRONTROLL, superClass);
 
     function SCRONTROLL() {
       this.watch = bind(this.watch, this);
-      var watcher;
+      this.controller = bind(this.controller, this);
       SCRONTROLL.__super__.constructor.apply(this, arguments);
       this.subscribers.direction = [];
-      watcher = (function(_this) {
-        return function(event_key) {
-          console.dir(_this.index[event_key]);
-          if (event_key === 0 || _this.index[event_key].direction.x !== _this.index[event_key - 1].direction.x) {
-            return _this.broadcast('direction', _this.index[event_key].direction.x);
-          }
-        };
-      })(this);
-      this.subscribe('engine', watcher);
+      this.subscribe('engine', this.controller);
     }
+
+
+    /*
+    
+       @controller() | Check conditions and broadcast changes if needed
+    
+       arguments
+         event_id = String
+    
+       returns
+         event_id = String || FALSE = boolean
+     */
+
+    SCRONTROLL.prototype.controller = function(event_id) {
+      if (event_id === 0 || this.index[event_id].direction.y !== this.index[event_id - 1].direction.y) {
+        this.broadcast('direction', this.index[event_id].direction.y);
+        return this.index[event_id].direction.y;
+      }
+      return false;
+    };
+
+
+    /*
+    
+      @watch() | Extend the @subscribe() method to a usable API Method.
+    
+      The function you pass as the second argument will be called every time the subscribed
+      event ( name ) gets broadcasted by the controller.
+    
+      
+    
+      arguments
+        name = 'String'
+        callback = function( data )
+    
+      returns
+        callback_id = 'Int'
+     */
 
     SCRONTROLL.prototype.watch = function(name, callback) {
       return this.subscribe(name, callback);
@@ -253,6 +370,6 @@
 
     return SCRONTROLL;
 
-  })(ENGINE);
+  })(root.ENGINE);
 
 }).call(this);
