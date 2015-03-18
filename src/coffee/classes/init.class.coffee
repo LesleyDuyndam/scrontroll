@@ -58,3 +58,15 @@ class root.INIT
       return data
 
     return false
+
+
+
+
+  ###
+
+    Check if a channel has been created
+
+  ###
+  channelExist: ( name ) ->
+    if @channel[ name ] isnt undefined then true else false
+
