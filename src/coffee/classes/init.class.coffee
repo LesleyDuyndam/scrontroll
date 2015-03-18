@@ -13,7 +13,7 @@ class root.INIT
 
     @window = $( window )
 
-#    Store the registered scroll callbacks, labeled by name
+#    Store the registered callbacks, where 'name' is the key
     @channel = {}
 
     #    If options are given, attach them
@@ -37,7 +37,7 @@ class root.INIT
 
   ###
 
-    Add subscribers callback function to call on broadcast
+    Push subscribers callback to the channel[ name ]
 
   ###
   subscribe: ( name, callback ) ->
@@ -58,7 +58,7 @@ class root.INIT
 
   ###
 
-    Broadcast scroll event_id to subscribers
+    Broadcast scroll data to subscribers
 
   ###
   broadcast: ( name, data ) =>
