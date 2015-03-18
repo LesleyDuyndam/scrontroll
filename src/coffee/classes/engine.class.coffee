@@ -14,9 +14,6 @@ class root.ENGINE extends root.TRACKER
   constructor: () ->
     super
 
-    #    Add a new channel to broadcast to
-    @addChannel 'engine'
-
 #   Ask tracker to be notified when scroll event is triggered and execute @supervisor
     @subscribe 'tracker', @supervisor
 

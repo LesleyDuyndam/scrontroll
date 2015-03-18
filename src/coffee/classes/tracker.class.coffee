@@ -19,13 +19,6 @@ class root.TRACKER extends root.INIT
     #    Is the tracker registering scroll events
     @active = false
 
-#    Add a new channel to broadcast to
-    @addChannel 'tracker'
-
-#    Start registering scroll events
-    if @autostart
-      @start()
-
 
 
 
@@ -41,37 +34,20 @@ class root.TRACKER extends root.INIT
 
 
 
-
-  ###
-
-    Store the event in the @index[]
-    return the event_id
-
-  ###
-  storeEvent: ( event ) ->
-
-    @index.push( event ) - 1
-
-
-
-
   ###
 
     Start listening for scroll events
 
+    Return false if tracker is already running
+
   ###
   start: ->
 
-#    Prevent start from binding multiple scroll event listeners to the window
-    if( @active )
-      return false
+    if( @active ) then return false
 
-    #    Bind scroll event listener to the window object
-    @window.scroll ( rawEvent ) =>
+    @window.scroll ( event ) =>
 
-#      Clean event and store it in @index[]
-      event = @disassemble rawEvent
-      event_id = @storeEvent event
+      event_id = @index.push( @disassemble event ) - 1
 
       @broadcast 'tracker', event_id
 

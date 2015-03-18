@@ -23,7 +23,7 @@ singleEvent =
   'timeStamp': 1426546663427
 
 
-describe 'Class Engine  ========================================', ->
+describe 'Class Engine ----------------------------------------', ->
 
   Engine = null
 
@@ -34,7 +34,7 @@ describe 'Class Engine  ========================================', ->
 
 #    Simulate scroll events and inject them in the tracker core
     for event in events
-      Engine.broadcast 'tracker', Engine.storeEvent event
+      Engine.broadcast 'tracker', Engine.index.push( event ) - 1
 
 
   it 'should be defined', ->

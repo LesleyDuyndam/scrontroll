@@ -59,12 +59,12 @@ describe 'Class Tracker  ========================================', ->
 
 
 
-
-  describe '@storeEvent()', ->
-    it 'should push an event to the index', ->
-      Tracker.storeEvent( 'Dummy filling' )
-
-      expect( Tracker.storeEvent( 'someData' ) ).toEqual( 1 )
+#
+#  describe '@storeEvent()', ->
+#    it 'should push an event to the index', ->
+#      Tracker.storeEvent( 'Dummy filling' )
+#
+#      expect( Tracker.storeEvent( 'someData' ) ).toEqual( 1 )
 
 
 

@@ -27,34 +27,16 @@ class root.INIT
 
 
 
-
-  ###
-
-    Create a new channel where functions can subscribe callbacks to
-
-  ###
-  addChannel: ( name ) ->
-
-#    Check if channel already exist
-    if !@channel[ name ]
-
-#     If not, create the channel
-      @channel[ name ] = []
-
-#
-    else
-#     If it does already exist, return false
-      return false
-
-
-
-
   ###
 
     Add subscribers callback function to call on broadcast
 
   ###
-  subscribe: ( name, callback ) =>
+  subscribe: ( name, callback ) ->
+
+    if !@channel[ name ]
+      @channel[ name ] = []
+
     @channel[ name ].push( callback )
 
 
@@ -65,7 +47,13 @@ class root.INIT
     Broadcast scroll event_id to subscribers
 
   ###
-  broadcast: ( name, event_id ) =>
+  broadcast: ( name, data ) =>
     @counter++
+
+    if !@channel[ name ]
+      @channel[ name ] = []
+
     for callback in @channel[ name ]
-      callback( event_id )
+      callback( data )
+
+    data

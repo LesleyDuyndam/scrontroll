@@ -13,12 +13,15 @@ root = exports ? this
 class root.SCRONTROLL extends root.ENGINE
   constructor: () ->
     super
-    @addChannel 'direction'
-
 
 #   Ask 'engine' to notify when it received a new event and is done processing the data.
 #   Run the @watcher( event_id ) on notification
     @subscribe 'engine', @controller
+
+    # Start registering scroll events
+    if @autostart
+      @start()
+
 
 
 
@@ -36,12 +39,13 @@ class root.SCRONTROLL extends root.ENGINE
    ###
 
   controller: ( event_id ) =>
-    if( event_id is 0 or @index[ event_id ].direction.y != @index[ event_id - 1 ].direction.y )
+
+    console.dir @channel[ 'direction' ]
+
+    if ( event_id is 0 or @index[ event_id ].direction.y != @index[ event_id - 1 ].direction.y )
 
 #      Direction changed, broadcast new direction to watcher
-      @broadcast 'direction', @index[ event_id ].direction.y
-
-      return @index[ event_id ].direction.y
+      return @broadcast 'direction', @index[ event_id ].direction.y
 
 #    Direction did not change, do nothing and return false
     return false

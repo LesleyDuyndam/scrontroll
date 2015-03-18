@@ -33,7 +33,7 @@ describe 'Class Scrontroll  ========================================', ->
 
     #    Simulate scroll events and inject them in the tracker core
     for event in events
-      Scrontroll.broadcast 'tracker', Scrontroll.storeEvent event
+      Scrontroll.broadcast 'tracker', Scrontroll.index.push( event ) - 1
 
 
   it 'should be defined', ->
@@ -51,7 +51,7 @@ describe 'Class Scrontroll  ========================================', ->
       expect( Scrontroll.controller( 2 ) ).toEqual( false )
 
     it 'should return "down"', ->
-      Scrontroll.broadcast 'tracker', Scrontroll.storeEvent singleEvent
+      Scrontroll.broadcast 'tracker', Scrontroll.index.push( singleEvent ) - 1
       expect( Scrontroll.controller( 3 ) ).toEqual( 'up' )
 
 
@@ -66,7 +66,7 @@ describe 'Class Scrontroll  ========================================', ->
         @direction = direction
 #       Manipulate the dom! Switch some classes for disapearing menus or whatever..
 
-      Scrontroll.broadcast 'tracker', Scrontroll.storeEvent singleEvent
+      Scrontroll.broadcast 'tracker', Scrontroll.index.push( singleEvent ) - 1
 
       expect( @direction ).toBe( 'up' )
 
