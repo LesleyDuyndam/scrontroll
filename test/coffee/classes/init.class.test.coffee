@@ -4,91 +4,98 @@ describe 'jQuery', ->
 
 
 
+describe 'Class root.INIT', ->
 
-describe 'Class Init  ========================================', ->
-
-  Init = null
-  callback = null
+  Init = undefined
+  callback = undefined
 
   beforeEach ->
-    Init = new TRACKER
-      autostart : false
+    Init = new root.INIT()
 
-
-    callback = ( event_key ) ->
+    callback = ( data ) ->
       return true
 
-      Init.subscribe 'tracker', callback
 
-      
-  describe '@autostart', ->
+  it 'should be defined', ->
+    expect( Init ).toBeDefined()
+
+
+  describe 'channelExist()',  ->
     it 'should be defined', ->
-      expect( Init.autostart ).toBeDefined()
-  
-    it 'should be false', ->
-      expect( Init.autostart ).toBeFalsy()
-  
-  
-  
-  describe '@window', ->
-    it 'should be defined.', ->
-      expect( Init.window ).toBeDefined()
-  
-  
-  
-  
-  describe '@active', ->
-    it 'should be defined.', ->
-      expect( Init.active ).toBeDefined()
-  
-    it 'should be false', ->
-      expect( Init.active ).toBeFalsy()
-  
-  
-  
-  
-  describe '@channel', ->
-    it 'should be defined.', ->
-      expect( Init.channel ).toBeTruthy()
-  
-  
-  
-  
-  describe '@counter', ->
+      expect( Init.channelExist ).toBeDefined()
+
+
+    it 'should return FALSE if the channel does not exists', ->
+      expect( Init.channelExist( 'testChannel' ) ).toBeFalsy()
+
+
+    it 'should return TRUE if the channel exists', ->
+      Init.channel.testChannel = []
+
+      expect( Init.channelExist( 'testChannel' ) ).toBeTruthy()
+
+
+
+  describe 'subscribe()', ->
     it 'should be defined', ->
-      expect( Init.counter ).toBeDefined()
-  
-    it 'should be 0.', ->
-      expect( Init.counter ).toBe( 0 )
-
-
-
-  describe '@subscribe().', ->
-    it 'should be a defined method.', ->
       expect( Init.subscribe ).toBeDefined()
 
-    it 'should return TRUE.', ->
-      expect( Init.subscribe( 'tracker', callback ) ).toBeTruthy()
 
-    it 'should update the @subscribers property, so its length is > 0.', ->
-      Init.subscribe( 'tracker', callback )
-      expect( Init.channel.tracker.length ).not.toBe( 0 )
+    it 'should make a channel if not jet created', ->
+      Init.subscribe( 'testChannel', callback )
 
-    it 'should have pushed a ( testing ) callback function to the @subscribers array which returns TRUE.', ->
-      Init.subscribe( 'tracker', callback )
-      expect( Init.channel.tracker[0]() ).toBe( true )
+      expect( Init.channelExist( 'testChannel' ) ).toBeTruthy()
 
+
+    it 'should RETURN the subscription_id', ->
+      expect( Init.subscribe( 'testChannel', callback ) ).toEqual( 0 )
 
 
 
-  describe '@subscribers.tracker', ->
-    it 'should be an ARRAY.', ->
-      Init.subscribe( 'tracker', callback )
+  describe 'unsubscribe()', ->
 
-      expect( Array.isArray( Init.channel.tracker ) ).toBeTruthy()
+    subscription_id = undefined
+
+    beforeEach ->
+      subscription_id = Init.subscribe( 'testChannel', callback )
 
 
-  describe '@broadcast()', ->
-    it 'should be a defined method.', ->
+    it 'should be defined', ->
+      expect( Init.unsubscribe ).toBeDefined()
+
+
+    it 'should return NULL on SUCCESS', ->
+      expect( Init.unsubscribe 'testChannel', 0 ).toEqual( null )
+
+
+    it 'should return FALSE on ERROR (channel does not exist)', ->
+      expect( Init.unsubscribe 'testChannel', 1 ).toBeFalsy()
+
+
+
+  describe 'broadcast()', ->
+
+    subscription_id = undefined
+    touched_data = undefined
+
+    beforeEach ->
+      subscription_id = Init.subscribe 'testChannel', ( data ) =>
+        touched_data = "#{ data }-touched"
+
+
+    it 'should be defined', ->
       expect( Init.broadcast ).toBeDefined()
 
+
+    it 'should return DATA on success', ->
+      expect( Init.broadcast( 'testChannel', 'dummyData' ) ).toEqual( 'dummyData' )
+
+
+    it 'should return FALSE on error', ->
+      expect( Init.broadcast( 'nonExistingChannel', 'dummyData' ) ).toBeFalsy()
+
+
+    it 'should return run callbacks', ->
+      Init.broadcast( 'testChannel', 'dummyData' )
+
+      expect( touched_data ).toEqual( 'dummyData-touched' )

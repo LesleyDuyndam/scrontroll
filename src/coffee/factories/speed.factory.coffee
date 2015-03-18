@@ -24,6 +24,6 @@ root.speed = ( this_event, prev_event ) ->
 # Calculate the time between the two events
   time = this_event.timeStamp - prev_event.timeStamp
 
-# Return the calculated PPS (Pixels Per Seconds)
+  # Return the calculatet the Scroll directions
   'y': ( Math.abs( this_event.y - prev_event.x ) / time ) * 1000
   'x': ( Math.abs( this_event.x - prev_event.x ) / time ) * 1000

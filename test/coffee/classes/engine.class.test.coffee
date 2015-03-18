@@ -1,70 +1,83 @@
-###
-  ENGINE Class test
-###
+describe 'Class root.ENGINE', ->
 
-events = [{
-  'x': 0
-  'y': 0
-  'timeStamp': 1426546660427
-},{
-  'x': 10
-  'y': 10
-  'timeStamp': 1426546661427
-},{
-  'x': 20
-  'y': 20
-  'timeStamp': 1426546662427
-},
-]
+  Engine = undefined
+  callback = undefined
 
-singleEvent =
-  'x': 30
-  'y': 30
-  'timeStamp': 1426546663427
-
-
-describe 'Class Engine ----------------------------------------', ->
-
-  Engine = null
+  control_return = undefined
 
   beforeEach ->
-    Engine = new ENGINE
-      'autostart' : false
+    Engine = new root.ENGINE
 
-#      Do nothing. This just creates a @channel[ name ] so it could be broadcasted.
-    Engine.subscribe 'tracker', ->
-      return
+    callback = ( data ) ->
+      return "#{ data }-touched"
 
-    Engine.subscribe 'direction', ->
-      return
 
-    Engine.subscribe 'speed', ->
-      return
+    Engine.index.push(
+      'x': 10
+      'y': 15
+      'timeStamp': 1234567891000
+      'direction':
+        'y'         : 'down'
+        'x'         : 'right'
+        'yChanged'  : false
+        'xChanged'  : false
+    )
 
-#    Simulate scroll events and inject them in the tracker core
-    for event in events
-      Engine.broadcast 'tracker', Engine.index.push( event ) - 1
+    Engine.index.push(
+      'x': 5
+      'y': 5
+      'timeStamp': 1234567892000
+      'direction':
+        'y'         : 'up'
+        'x'         : 'left'
+        'yChanged'  : true
+        'xChanged'  : true
+    )
 
+    Engine.index.push(
+      'x': 15
+      'y': 25
+      'timeStamp': 1234567893000
+    )
+
+    control_return =
+      'x': 15
+      'y': 25
+      'timeStamp': 1234567893000
+      'direction':
+        'y'         : 'down'
+        'x'         : 'right'
+        'yChanged'  : true
+        'xChanged'  : true
 
   it 'should be defined', ->
-    console.dir Engine
     expect( Engine ).toBeDefined()
 
 
-  describe '@supervisor', ->
+  describe 'router()', ->
     it 'should be defined', ->
-      expect( Engine.supervisor ).toBeDefined()
+      expect( Engine.router ).toBeDefined()
 
-    it 'should update the event objects in @index', ->
+    it 'should return the event_id if NO channels exist', ->
+      expect( Engine.router 1 ).toBe( 1 )
 
-      expect( Engine.index[ Engine.supervisor( 2 ) ] ).toEqual({
-        'x': 20
-        'y': 20
-        'timeStamp': 1426546662427
-        'direction' :
-          'x' : 'right'
-          'y' : 'down'
-        'speed' :
-          'x' : 10
-          'y' : 10
-      })
+    it 'should return the DIRECTION Object if DIRECTION has subscribers', ->
+
+      direction_return = undefined
+      Engine.subscribe 'direction', ( object ) ->
+        console.log( "direction returns #{ object }" )
+        direction_return = object
+
+      Engine.router 2
+
+      expect( direction_return ).toEqual( control_return )
+
+    it 'should return the VERTICAL-DIRECTION if channel HORIZONTAL-DIRECTIONS has subscribers', ->
+
+      vertical_return = undefined
+      Engine.subscribe 'vertical-direction', ( string ) ->
+        vertical_return = string
+
+      Engine.router 2
+
+      expect( vertical_return ).toEqual( control_return.direction.y )

@@ -16,13 +16,21 @@ class root.INIT
 #    Store the registered scroll callbacks, labeled by name
     @channel = {}
 
-#    If options are given, attach them
+    #    If options are given, attach them
     { @autostart } = options if options
 
     @autostart = true if @autostart is undefined
 
-#    Count the amount of times broadcast has been called
-    @counter = 0
+
+
+
+  ###
+
+    Check if a channel has been created
+
+  ###
+  channelExist: ( name ) ->
+    Array.isArray( @channel[ name ] )
 
 
 
@@ -33,11 +41,17 @@ class root.INIT
 
   ###
   subscribe: ( name, callback ) ->
-
-    if !@channel[ name ]
+    if !@channelExist( name )
       @channel[ name ] = []
 
-    @channel[ name ].push( callback )
+    @channel[ name ].push( callback ) - 1
+
+
+  unsubscribe: ( name, subscription_id ) ->
+    if @channelExist( name )
+      return @channel[ name ][ subscription_id ] = null
+
+    false
 
 
 
@@ -49,9 +63,7 @@ class root.INIT
   ###
   broadcast: ( name, data ) =>
 
-    if( @channel[ name ] isnt undefined )
-
-      @counter++
+    if @channelExist( name )
       for callback in @channel[ name ]
         callback( data )
 
