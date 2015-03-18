@@ -88,7 +88,6 @@
       this.broadcast = bind(this.broadcast, this);
       this.subscribe = bind(this.subscribe, this);
       this.window = $(window);
-      this.index = [];
       this.channel = {};
       if (options) {
         this.autostart = options.autostart;
@@ -158,8 +157,9 @@
   /*
   
     TRACKER Class
+    extends INIT class
   
-    1. TRACKER | receives new input on scroll event from event listener
+    Receives new input on scroll event from event listener,
    */
 
   root.TRACKER = (function(superClass) {
@@ -167,6 +167,7 @@
 
     function TRACKER() {
       TRACKER.__super__.constructor.apply(this, arguments);
+      this.index = [];
       this.active = false;
       this.addChannel('tracker');
       if (this.autostart) {
@@ -260,14 +261,8 @@
   
     ENGINE Class
     extends TRACKER class
-  
-    1. Engine
-      - receives new input on scroll event from the TRACKER
-  
-    2. @supervisor
-      - Delegates input to the factories
-      - Adds factory output to event in the @index[]
-      - Broadcast event key when done, so subscribers know something changed
+    
+    Receives new input on scroll event from the TRACKER
    */
 
   root.ENGINE = (function(superClass) {
@@ -285,15 +280,9 @@
     
       @supervisor() | Run tasks
     
-        - Delegates input to the factories
-        - Adds factory output to event in the @index[]
-        - Broadcast event key when done, so subscribers know something changed
-    
-      arguments
-        event_id = 'String'
-    
-      returns
-        event_id = 'String'
+      - Delegates input to the factories
+      - Adds factory output to event in the @index[]
+      - Broadcast event key when done, so subscribers know something changed
      */
 
     ENGINE.prototype.supervisor = function(event_id) {

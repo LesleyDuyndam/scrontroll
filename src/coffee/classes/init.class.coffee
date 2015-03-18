@@ -13,9 +13,6 @@ class root.INIT
 
     @window = $( window )
 
-#    Store all the events
-    @index = []
-
 #    Store the registered scroll callbacks, labeled by name
     @channel = {}
 

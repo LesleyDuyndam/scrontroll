@@ -3,8 +3,9 @@ root = exports ? this
 ###
 
   TRACKER Class
+  extends INIT class
 
-  1. TRACKER | receives new input on scroll event from event listener
+  Receives new input on scroll event from event listener,
 
 ###
 
@@ -12,10 +13,11 @@ class root.TRACKER extends root.INIT
   constructor: () ->
     super
 
+    #    Store all the events
+    @index = []
 
-#    Is the tracker registering scroll events
+    #    Is the tracker registering scroll events
     @active = false
-
 
 #    Add a new channel to broadcast to
     @addChannel 'tracker'
@@ -67,8 +69,8 @@ class root.TRACKER extends root.INIT
     #    Bind scroll event listener to the window object
     @window.scroll ( rawEvent ) =>
 
+#      Clean event and store it in @index[]
       event = @disassemble rawEvent
-
       event_id = @storeEvent event
 
       @broadcast 'tracker', event_id
