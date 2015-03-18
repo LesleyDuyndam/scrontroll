@@ -17,18 +17,23 @@
    */
 
   root.direction = function(this_event, prev_event) {
-    var defaults;
+    var defaults, direction;
     defaults = {
       'y': 'atTop',
-      'x': 'atLeft'
+      'x': 'atLeft',
+      'yChanged': true,
+      'xChanged': true
     };
     if (prev_event === void 0) {
       return defaults;
     }
-    return {
+    direction = {
       'y': this_event.y >= prev_event.y ? 'down' : 'up',
       'x': this_event.x >= prev_event.x ? 'right' : 'left'
     };
+    direction.yChanged = direction.y !== prev_event.direction.y ? true : false;
+    direction.xChanged = direction.x !== prev_event.direction.x ? true : false;
+    return direction;
   };
 
 }).call(this);
@@ -94,8 +99,17 @@
       if (this.autostart === void 0) {
         this.autostart = true;
       }
-      this.counter = 0;
     }
+
+
+    /*
+    
+      Check if a channel has been created
+     */
+
+    INIT.prototype.channelExist = function(name) {
+      return Array.isArray(this.channel[name]);
+    };
 
 
     /*
@@ -104,10 +118,17 @@
      */
 
     INIT.prototype.subscribe = function(name, callback) {
-      if (!this.channel[name]) {
+      if (!this.channelExist(name)) {
         this.channel[name] = [];
       }
-      return this.channel[name].push(callback);
+      return this.channel[name].push(callback) - 1;
+    };
+
+    INIT.prototype.unsubscribe = function(name, subscription_id) {
+      if (this.channelExist(name)) {
+        return this.channel[name][subscription_id] = null;
+      }
+      return false;
     };
 
 
@@ -118,8 +139,7 @@
 
     INIT.prototype.broadcast = function(name, data) {
       var callback, i, len, ref;
-      if (this.channel[name] !== void 0) {
-        this.counter++;
+      if (this.channelExist(name)) {
         ref = this.channel[name];
         for (i = 0, len = ref.length; i < len; i++) {
           callback = ref[i];
@@ -167,7 +187,7 @@
       Pull needed data from event OBJECT and return new OBJECT
      */
 
-    TRACKER.prototype.disassemble = function(event) {
+    TRACKER.prototype.extractCore = function(event) {
       return {
         'y': event.currentTarget ? event.currentTarget.pageYOffset : event.target.pageYOffset,
         'x': event.currentTarget ? event.currentTarget.pageXOffset : event.target.pageXOffset,
@@ -190,7 +210,7 @@
       this.window.scroll((function(_this) {
         return function(event) {
           var event_id;
-          event_id = _this.index.push(_this.disassemble(event)) - 1;
+          event_id = _this.index.push(_this.extractCore(event)) - 1;
           return _this.broadcast('tracker', event_id);
         };
       })(this));
@@ -204,8 +224,11 @@
      */
 
     TRACKER.prototype.stop = function() {
-      this.window.off('scroll');
-      return this.active = false;
+      if (this.active) {
+        this.window.off('scroll');
+        this.active = false;
+      }
+      return true;
     };
 
 
@@ -237,40 +260,55 @@
   
     ENGINE Class
     extends TRACKER class
-    
-    Receives new input on scroll event from the TRACKER
    */
 
   root.ENGINE = (function(superClass) {
     extend(ENGINE, superClass);
 
     function ENGINE() {
-      this.supervisor = bind(this.supervisor, this);
+      this.router = bind(this.router, this);
       ENGINE.__super__.constructor.apply(this, arguments);
-      this.subscribe('tracker', this.supervisor);
+      this.subscribe('tracker', this.router);
     }
 
 
     /*
     
-      @supervisor() | Run tasks
+      @router() | Run tasks
     
       - Delegates input to the factories
       - Adds factory output to event in the @index[]
       - Broadcast event key when done, so subscribers know something changed
      */
 
-    ENGINE.prototype.supervisor = function(event_id) {
+    ENGINE.prototype.router = function(event_id) {
       var prev_event, this_event;
       this_event = this.index[event_id];
       prev_event = this.index[event_id - 1];
-      if (this.channel['direction'] !== void 0) {
+      if (this.channelExist('direction') || this.channelExist('vertical-direction') || this.channelExist('horizontal-direction')) {
         this_event.direction = root.direction(this_event, prev_event);
+        if (this.channelExist('direction')) {
+          if (this_event.direction.xChanged || this_event.direction.yChanged) {
+            this.broadcast('direction', this_event);
+          }
+        }
+        if (this.channelExist('horizontal-direction')) {
+          if (this_event.direction.xChanged) {
+            this.broadcast('horizontal-direction', this_event.direction.x);
+          }
+        }
+        if (this.channelExist('vertical-direction')) {
+          if (this_event.direction.yChanged) {
+            this.broadcast('vertical-direction', this_event.direction.y);
+          }
+        }
       }
       if (this.channel['speed'] !== void 0) {
         this_event.speed = root.speed(this_event, prev_event);
+        if (this_event.speed > 0) {
+          this.broadcast('speed', this_event);
+        }
       }
-      this.broadcast('engine', event_id);
       return event_id;
     };
 
@@ -293,9 +331,6 @@
   
     SCRONTROLL Class
     extends ENGINE class
-  
-    SCRONTROLL
-      - receives a notification from the 'engine' when a new event has been triggered and processed.
    */
 
   root.SCRONTROLL = (function(superClass) {
@@ -303,52 +338,11 @@
 
     function SCRONTROLL() {
       this.watch = bind(this.watch, this);
-      this.controller = bind(this.controller, this);
       SCRONTROLL.__super__.constructor.apply(this, arguments);
-      this.subscribe('engine', this.controller);
       if (this.autostart) {
         this.start();
       }
     }
-
-
-    /*
-    
-       @controller() | Check conditions and broadcast changes if needed
-    
-       arguments
-         event_id = String
-    
-       returns
-         event_id = String || FALSE = boolean
-     */
-
-    SCRONTROLL.prototype.controller = function(event_id) {
-      if (this.channel['direction'] !== void 0) {
-        if (event_id === 0 || this.index[event_id].direction.y !== this.index[event_id - 1].direction.y) {
-          return this.broadcast('direction', this.index[event_id].direction.y);
-        }
-      }
-      return false;
-    };
-
-
-    /*
-    
-      @watch() | Extend the @subscribe() method to a usable API Method.
-    
-      The function you pass as the second argument will be called every time the subscribed
-      event ( name ) gets broadcasted by the controller.
-    
-      
-    
-      arguments
-        name = 'String'
-        callback = function( data )
-    
-      returns
-        callback_id = 'Int'
-     */
 
     SCRONTROLL.prototype.watch = function(name, callback) {
       return this.subscribe(name, callback);

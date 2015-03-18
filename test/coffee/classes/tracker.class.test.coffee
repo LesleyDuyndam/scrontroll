@@ -1,101 +1,61 @@
-###
-  TRACKER Class test
-###
+describe 'Class root.TRACKER', ->
 
-###
-  Setup the tests
-###
-
-describe 'Class Tracker  ========================================', ->
-
-  Tracker = null
-  callback = null
-
-  event =
-    'timeStamp' : 10
-    'target' :
-      'pageXOffset' : 0
-      'pageYOffset' : 0
+  Tracker = undefined
+  callback = undefined
+  event = undefined
+  control_event = undefined
 
   beforeEach ->
-    Tracker = new TRACKER
-      autostart : false
+    Tracker = new root.TRACKER
 
-
-    callback = ( event_key ) ->
+    callback = ( data ) ->
       return true
 
-    Tracker.subscribe 'tracker', callback
+    event =
+      'target' :
+        'pageYOffset' : 10
+        'pageXOffset' : 15
+      'timeStamp' : 1234567891000
 
+    control_event =
+      'y' : 10
+      'x' : 15
+      'timeStamp' : 1234567891000
 
-
-
-
-
-
-
-
-  ###
-    Run METHOD tests
-  ###
 
   it 'should be defined', ->
-    console.dir Tracker
     expect( Tracker ).toBeDefined()
 
 
+  describe 'extractCore', ->
+    it 'should be defined', ->
+      expect( Tracker.extractCore ).toBeDefined()
+
+    it 'should return an EVENT object', ->
+      expect( Tracker.extractCore event ).toEqual( control_event )
 
 
-  describe '@disassemble()', ->
-    it 'should be a defined method.', ->
-      expect( Tracker.disassemble ).toBeDefined()
+  describe 'start()', ->
+    it 'should be defined', ->
+      expect( Tracker.start ).toBeDefined()
 
-    it 'should return a disassembled object', ->
-      expect( Tracker.disassemble( event ) ).toEqual(
-        'x' : 0
-        'y' : 0
-        'timeStamp' : 10
-      )
-
-
-
-#
-#  describe '@storeEvent()', ->
-#    it 'should push an event to the index', ->
-#      Tracker.storeEvent( 'Dummy filling' )
-#
-#      expect( Tracker.storeEvent( 'someData' ) ).toEqual( 1 )
-
-
-
-
-  describe '@start()', ->
-    it 'should turn window scroll events on', ->
+    it 'should return true on success', ->
       expect( Tracker.start() ).toBeTruthy()
 
-    it 'should NOT start, if already running', ->
+    it 'should return false if already running', ->
       Tracker.start()
+
       expect( Tracker.start() ).toBeFalsy()
 
-    it 'should update the counter after a event trigger', ->
 
-      Tracker.start()
-      Tracker.trigger()
-
-      expect( Tracker.counter ).toBe( 1 )
-
-
-
-
-  describe '@stop()', ->
-    it 'should be a defined method.', ->
+  describe 'stop()', ->
+    it 'should be defined', ->
       expect( Tracker.stop ).toBeDefined()
 
-    it 'should turn window scroll events off', ->
-      expect( Tracker.stop() ).toBeFalsy()
+    it 'should return true on success', ->
+      expect( Tracker.stop() ).toBeTruthy()
 
-    it 'should NOT update the counter after a event trigger', ->
 
-      Tracker.trigger()
-
-      expect( Tracker.counter ).toBe( 0 )
+  describe 'trigger()', ->
+    it 'should be defined', ->
+      expect( Tracker.trigger ).toBeDefined()

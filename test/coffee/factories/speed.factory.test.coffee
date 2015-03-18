@@ -1,18 +1,39 @@
+describe 'root.speed', ->
 
-root = exports ? this
+  this_event = undefined
+  prev_event = undefined
+  default_return = undefined
+  speed_return = undefined
 
-prev_event =
-  'x': 10
-  'y': 10
-  'timeStamp': 1426546661427
+  beforeEach ->
+    prev_event =
+      'y' : 15
+      'x' : 15
+      'timeStamp' : 1234567892000
 
-this_event =
-  'x': 20
-  'y': 20
-  'timeStamp': 1426546662427
+    this_event =
+      'y' : 25
+      'x' : 25
+      'timeStamp' : 1234567893000
 
-no_event = undefined
 
-describe 'root.speed() ----------------------------------------', ->
-  it 'should return a speed OBJECT', ->
-    expect( root.speed( this_event, prev_event ) ).toEqual({ 'x' : 10, 'y' : 10 })
+    default_return =
+      'y'         : 0
+      'x'         : 0
+
+    speed_return =
+      'y'         : 10
+      'x'         : 10
+
+
+
+
+
+  it 'should be defined', ->
+    expect( root.speed ).toBeDefined()
+
+  it 'should return defaults if prev_event is undefined', ->
+    expect( root.speed this_event, undefined ).toEqual( default_return )
+
+  it 'should return speed_return', ->
+    expect( root.speed this_event, prev_event ).toEqual( speed_return )

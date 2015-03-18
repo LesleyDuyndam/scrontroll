@@ -27,7 +27,7 @@ class root.TRACKER extends root.INIT
     Pull needed data from event OBJECT and return new OBJECT
 
   ###
-  disassemble: ( event ) ->
+  extractCore: ( event ) ->
     'y': if event.currentTarget then event.currentTarget.pageYOffset else event.target.pageYOffset
     'x': if event.currentTarget then event.currentTarget.pageXOffset else event.target.pageXOffset
     'timeStamp': event.timeStamp
@@ -47,7 +47,7 @@ class root.TRACKER extends root.INIT
 
     @window.scroll ( event ) =>
 
-      event_id = @index.push( @disassemble event ) - 1
+      event_id = @index.push( @extractCore event ) - 1
 
       @broadcast 'tracker', event_id
 
@@ -62,8 +62,11 @@ class root.TRACKER extends root.INIT
 
   ###
   stop: ->
-    @window.off( 'scroll' )
-    @active = false
+    if @active
+      @window.off( 'scroll' )
+      @active = false
+
+    true
 
 
 

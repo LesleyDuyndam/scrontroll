@@ -4,9 +4,6 @@ root = exports ? this
 
   ENGINE Class
   extends TRACKER class
-  
-  Receives new input on scroll event from the TRACKER
-
 
 ###
 
@@ -36,14 +33,13 @@ class root.ENGINE extends root.TRACKER
     prev_event = @index[ event_id - 1 ]
 
 
-
-
 #   Calculate the direction and store the output in the @index[ this_event ]
     if (
       @channelExist( 'direction' ) or
       @channelExist( 'vertical-direction' ) or
       @channelExist( 'horizontal-direction' )
     )
+
       this_event.direction = root.direction( this_event, prev_event )
 
       # give direction OBJECT as argument
@@ -51,15 +47,15 @@ class root.ENGINE extends root.TRACKER
         if( this_event.direction.xChanged or this_event.direction.yChanged  )
           @broadcast 'direction', this_event
 
-        # give vertical direction STRING as argument
-        if @channelExist( 'horizontal-direction' )
-          if( this_event.direction.xChanged )
-            @broadcast 'horizontal-direction', this_event.direction.x
+      # give vertical direction STRING as argument
+      if @channelExist( 'horizontal-direction' )
+        if( this_event.direction.xChanged )
+          @broadcast 'horizontal-direction', this_event.direction.x
 
-        # give horizontal direction STRING as argument
-        if @channelExist( 'vertical-direction' )
-          if( this_event.direction.yChanged )
-            @broadcast 'vertical-direction', this_event.direction.y
+      # give horizontal direction STRING as argument
+      if @channelExist( 'vertical-direction' )
+        if( this_event.direction.yChanged )
+          @broadcast 'vertical-direction', this_event.direction.y
 
 
 
