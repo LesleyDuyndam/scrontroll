@@ -21,12 +21,14 @@ module.exports = (config) ->
 
     # Load all the CoffeeScripts
       {pattern: 'src/coffee/factories/**/*.factory.coffee', included: true},
+      {pattern: 'src/coffee/classes/init.class.coffee', included: true},
       {pattern: 'src/coffee/classes/tracker.class.coffee', included: true},
       {pattern: 'src/coffee/classes/engine.class.coffee', included: true},
       {pattern: 'src/coffee/Scrontroll.coffee', included: true},
 
     # Load all the karma tests
       {pattern: 'test/coffee/factories/**/*.factory.test.coffee', included: true},
+      {pattern: 'test/coffee/classes/init.class.test.coffee', included: true},
       {pattern: 'test/coffee/classes/tracker.class.test.coffee', included: true},
       {pattern: 'test/coffee/classes/engine.class.test.coffee', included: true},
       {pattern: 'test/coffee/Scrontroll.test.coffee', included: true}

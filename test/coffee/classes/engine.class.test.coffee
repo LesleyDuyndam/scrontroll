@@ -23,7 +23,7 @@ singleEvent =
   'timeStamp': 1426546663427
 
 
-describe 'Class Engine', ->
+describe 'Class Engine  ========================================', ->
 
   Engine = null
 

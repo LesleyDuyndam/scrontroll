@@ -19,16 +19,8 @@ root.direction = ( this_event, prev_event ) ->
     'y' : 'atTop'
     'x' : 'atLeft'
 
-  ###
-
-    If the event got triggered for the first time, there is no previous event to calculate
-    with. Return the defaults instead.
-
-  ###
   return defaults if prev_event is undefined
 
-# Calculate the Scroll directions
-  return {
+# Return the calculatet the Scroll directions
   'y': if this_event.y >= prev_event.y then 'down' else 'up'
   'x': if this_event.x >= prev_event.x then 'right' else 'left'
-  }

@@ -13,6 +13,6 @@ this_event =
 
 no_event = undefined
 
-describe 'root.speed()', ->
+describe 'root.speed() ----------------------------------------', ->
   it 'should return a speed OBJECT', ->
     expect( root.speed( this_event, prev_event ) ).toEqual({ 'x' : 10, 'y' : 10 })

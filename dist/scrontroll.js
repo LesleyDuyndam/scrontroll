@@ -22,12 +22,6 @@
       'y': 'atTop',
       'x': 'atLeft'
     };
-
-    /*
-    
-      If the event got triggered for the first time, there is no previous event to calculate
-      with. Return the defaults instead.
-     */
     if (prev_event === void 0) {
       return defaults;
     }
@@ -58,28 +52,18 @@
    */
 
   root.speed = function(this_event, prev_event) {
-    var defaults, distance, time;
+    var defaults, time;
     defaults = {
       'y': 0,
       'x': 0
     };
-
-    /*
-    
-      If the event got triggered for the first time, there is no previous event to calculate
-      with. Return the defaults instead.
-     */
     if (prev_event === void 0) {
       return defaults;
     }
     time = this_event.timeStamp - prev_event.timeStamp;
-    distance = {
-      'y': Math.abs(this_event.y - prev_event.x),
-      'x': Math.abs(this_event.x - prev_event.x)
-    };
     return {
-      'y': (distance.y / time) * 1000,
-      'x': (distance.x / time) * 1000
+      'y': (Math.abs(this_event.y - prev_event.x) / time) * 1000,
+      'x': (Math.abs(this_event.x - prev_event.x) / time) * 1000
     };
   };
 
@@ -94,32 +78,39 @@
 
   /*
   
-    TRACKER Class
+    INIT Class
   
     1. TRACKER | receives new input on scroll event from event listener
    */
 
-  root.TRACKER = (function() {
-    function TRACKER(options) {
+  root.INIT = (function() {
+    function INIT(options) {
       this.broadcast = bind(this.broadcast, this);
       this.subscribe = bind(this.subscribe, this);
-      this.index = [];
+      this.window = $(window);
+      this.channel = {};
       if (options) {
         this.autostart = options.autostart;
       }
       if (this.autostart === void 0) {
         this.autostart = true;
       }
-      this.window = $(window);
-      this.active = false;
       this.counter = 0;
-      this.subscribers = {
-        'tracker': []
-      };
-      if (this.autostart) {
-        this.start();
-      }
     }
+
+
+    /*
+    
+      Create a new channel where functions can subscribe callbacks to
+     */
+
+    INIT.prototype.addChannel = function(name) {
+      if (!this.channel[name]) {
+        return this.channel[name] = [];
+      } else {
+        return false;
+      }
+    };
 
 
     /*
@@ -127,8 +118,8 @@
       Add subscribers callback function to call on broadcast
      */
 
-    TRACKER.prototype.subscribe = function(name, callback) {
-      return this.subscribers[name].push(callback);
+    INIT.prototype.subscribe = function(name, callback) {
+      return this.channel[name].push(callback);
     };
 
 
@@ -137,10 +128,10 @@
       Broadcast scroll event_id to subscribers
      */
 
-    TRACKER.prototype.broadcast = function(name, event_id) {
+    INIT.prototype.broadcast = function(name, event_id) {
       var callback, i, len, ref, results;
       this.counter++;
-      ref = this.subscribers[name];
+      ref = this.channel[name];
       results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         callback = ref[i];
@@ -149,6 +140,41 @@
       return results;
     };
 
+    return INIT;
+
+  })();
+
+}).call(this);
+
+(function() {
+  var root,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+
+  /*
+  
+    TRACKER Class
+    extends INIT class
+  
+    Receives new input on scroll event from event listener,
+   */
+
+  root.TRACKER = (function(superClass) {
+    extend(TRACKER, superClass);
+
+    function TRACKER() {
+      TRACKER.__super__.constructor.apply(this, arguments);
+      this.index = [];
+      this.active = false;
+      this.addChannel('tracker');
+      if (this.autostart) {
+        this.start();
+      }
+    }
+
 
     /*
     
@@ -156,21 +182,11 @@
      */
 
     TRACKER.prototype.disassemble = function(event) {
-      var newEvent;
-      if (event.currentTarget !== void 0) {
-        newEvent = {
-          'x': event.currentTarget.pageXOffset,
-          'y': event.currentTarget.pageYOffset,
-          'timeStamp': event.timeStamp
-        };
-      } else {
-        newEvent = {
-          'x': event.target.pageXOffset,
-          'y': event.target.pageYOffset,
-          'timeStamp': event.timeStamp
-        };
-      }
-      return newEvent;
+      return {
+        'y': event.currentTarget ? event.currentTarget.pageYOffset : event.target.pageYOffset,
+        'x': event.currentTarget ? event.currentTarget.pageXOffset : event.target.pageXOffset,
+        'timeStamp': event.timeStamp
+      };
     };
 
 
@@ -228,7 +244,7 @@
 
     return TRACKER;
 
-  })();
+  })(root.INIT);
 
 }).call(this);
 
@@ -245,14 +261,8 @@
   
     ENGINE Class
     extends TRACKER class
-  
-    1. Engine
-      - receives new input on scroll event from the TRACKER
-  
-    2. @supervisor
-      - Delegates input to the factories
-      - Adds factory output to event in the @index[]
-      - Broadcast event key when done, so subscribers know something changed
+    
+    Receives new input on scroll event from the TRACKER
    */
 
   root.ENGINE = (function(superClass) {
@@ -261,7 +271,7 @@
     function ENGINE() {
       this.supervisor = bind(this.supervisor, this);
       ENGINE.__super__.constructor.apply(this, arguments);
-      this.subscribers.engine = [];
+      this.addChannel('engine');
       this.subscribe('tracker', this.supervisor);
     }
 
@@ -270,15 +280,9 @@
     
       @supervisor() | Run tasks
     
-        - Delegates input to the factories
-        - Adds factory output to event in the @index[]
-        - Broadcast event key when done, so subscribers know something changed
-    
-      arguments
-        event_id = 'String'
-    
-      returns
-        event_id = 'String'
+      - Delegates input to the factories
+      - Adds factory output to event in the @index[]
+      - Broadcast event key when done, so subscribers know something changed
      */
 
     ENGINE.prototype.supervisor = function(event_id) {
@@ -322,7 +326,7 @@
       this.watch = bind(this.watch, this);
       this.controller = bind(this.controller, this);
       SCRONTROLL.__super__.constructor.apply(this, arguments);
-      this.subscribers.direction = [];
+      this.addChannel('direction');
       this.subscribe('engine', this.controller);
     }
 
