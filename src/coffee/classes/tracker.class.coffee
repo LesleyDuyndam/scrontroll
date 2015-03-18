@@ -130,7 +130,6 @@ class root.TRACKER
   ###
   stop: ->
     @window.off( 'scroll' )
-
     @active = false
 
 
