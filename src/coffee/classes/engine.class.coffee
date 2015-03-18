@@ -37,11 +37,16 @@ class root.ENGINE extends root.TRACKER
     prev_event = @index[ event_id - 1 ]
 
 
+
 #   Calculate the direction and store the output in the @index[ this_event ]
-    this_event.direction = root.direction( this_event, prev_event )
+    if ( @channel[ 'direction' ] isnt undefined )
+      this_event.direction = root.direction( this_event, prev_event )
+
 
 #   Calculate the speed and store the output in the @index[ this_event ]
-    this_event.speed = root.speed( this_event, prev_event )
+    if ( @channel[ 'speed' ] isnt undefined )
+      this_event.speed = root.speed( this_event, prev_event )
+
 
 #   Notify the engine subscribers that a new event has been triggered and manipulated
     @broadcast 'engine', event_id

@@ -40,14 +40,13 @@ class root.SCRONTROLL extends root.ENGINE
 
   controller: ( event_id ) =>
 
-    console.dir @channel[ 'direction' ]
+    if ( @channel[ 'direction' ] isnt undefined )
 
-    if ( event_id is 0 or @index[ event_id ].direction.y != @index[ event_id - 1 ].direction.y )
+#     Direction changed, broadcast new direction to watcher
+      if( event_id is 0 || @index[ event_id ].direction.y != @index[ event_id - 1 ].direction.y )
+        return @broadcast 'direction', @index[ event_id ].direction.y
 
-#      Direction changed, broadcast new direction to watcher
-      return @broadcast 'direction', @index[ event_id ].direction.y
-
-#    Direction did not change, do nothing and return false
+#   Direction did not change, do nothing and return false
     return false
 
 

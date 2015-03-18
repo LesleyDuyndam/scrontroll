@@ -86,7 +86,6 @@
   root.INIT = (function() {
     function INIT(options) {
       this.broadcast = bind(this.broadcast, this);
-      this.subscribe = bind(this.subscribe, this);
       this.window = $(window);
       this.channel = {};
       if (options) {
@@ -101,24 +100,13 @@
 
     /*
     
-      Create a new channel where functions can subscribe callbacks to
-     */
-
-    INIT.prototype.addChannel = function(name) {
-      if (!this.channel[name]) {
-        return this.channel[name] = [];
-      } else {
-        return false;
-      }
-    };
-
-
-    /*
-    
       Add subscribers callback function to call on broadcast
      */
 
     INIT.prototype.subscribe = function(name, callback) {
+      if (!this.channel[name]) {
+        this.channel[name] = [];
+      }
       return this.channel[name].push(callback);
     };
 
@@ -128,16 +116,18 @@
       Broadcast scroll event_id to subscribers
      */
 
-    INIT.prototype.broadcast = function(name, event_id) {
-      var callback, i, len, ref, results;
-      this.counter++;
-      ref = this.channel[name];
-      results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        callback = ref[i];
-        results.push(callback(event_id));
+    INIT.prototype.broadcast = function(name, data) {
+      var callback, i, len, ref;
+      if (this.channel[name] !== void 0) {
+        this.counter++;
+        ref = this.channel[name];
+        for (i = 0, len = ref.length; i < len; i++) {
+          callback = ref[i];
+          callback(data);
+        }
+        return data;
       }
-      return results;
+      return false;
     };
 
     return INIT;
@@ -169,10 +159,6 @@
       TRACKER.__super__.constructor.apply(this, arguments);
       this.index = [];
       this.active = false;
-      this.addChannel('tracker');
-      if (this.autostart) {
-        this.start();
-      }
     }
 
 
@@ -192,18 +178,9 @@
 
     /*
     
-      Store the event in the @index[]
-      return the event_id
-     */
-
-    TRACKER.prototype.storeEvent = function(event) {
-      return this.index.push(event) - 1;
-    };
-
-
-    /*
-    
       Start listening for scroll events
+    
+      Return false if tracker is already running
      */
 
     TRACKER.prototype.start = function() {
@@ -211,10 +188,9 @@
         return false;
       }
       this.window.scroll((function(_this) {
-        return function(rawEvent) {
-          var event, event_id;
-          event = _this.disassemble(rawEvent);
-          event_id = _this.storeEvent(event);
+        return function(event) {
+          var event_id;
+          event_id = _this.index.push(_this.disassemble(event)) - 1;
           return _this.broadcast('tracker', event_id);
         };
       })(this));
@@ -271,7 +247,6 @@
     function ENGINE() {
       this.supervisor = bind(this.supervisor, this);
       ENGINE.__super__.constructor.apply(this, arguments);
-      this.addChannel('engine');
       this.subscribe('tracker', this.supervisor);
     }
 
@@ -289,8 +264,12 @@
       var prev_event, this_event;
       this_event = this.index[event_id];
       prev_event = this.index[event_id - 1];
-      this_event.direction = root.direction(this_event, prev_event);
-      this_event.speed = root.speed(this_event, prev_event);
+      if (this.channel['direction'] !== void 0) {
+        this_event.direction = root.direction(this_event, prev_event);
+      }
+      if (this.channel['speed'] !== void 0) {
+        this_event.speed = root.speed(this_event, prev_event);
+      }
       this.broadcast('engine', event_id);
       return event_id;
     };
@@ -326,8 +305,10 @@
       this.watch = bind(this.watch, this);
       this.controller = bind(this.controller, this);
       SCRONTROLL.__super__.constructor.apply(this, arguments);
-      this.addChannel('direction');
       this.subscribe('engine', this.controller);
+      if (this.autostart) {
+        this.start();
+      }
     }
 
 
@@ -343,9 +324,10 @@
      */
 
     SCRONTROLL.prototype.controller = function(event_id) {
-      if (event_id === 0 || this.index[event_id].direction.y !== this.index[event_id - 1].direction.y) {
-        this.broadcast('direction', this.index[event_id].direction.y);
-        return this.index[event_id].direction.y;
+      if (this.channel['direction'] !== void 0) {
+        if (event_id === 0 || this.index[event_id].direction.y !== this.index[event_id - 1].direction.y) {
+          return this.broadcast('direction', this.index[event_id].direction.y);
+        }
       }
       return false;
     };

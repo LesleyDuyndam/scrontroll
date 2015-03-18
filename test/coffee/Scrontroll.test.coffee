@@ -31,9 +31,10 @@ describe 'Class Scrontroll  ========================================', ->
     Scrontroll = new SCRONTROLL
       'autostart' : false
 
+
     #    Simulate scroll events and inject them in the tracker core
     for event in events
-      Scrontroll.broadcast 'tracker', Scrontroll.index.push( event ) - 1
+      Scrontroll.broadcast 'tracker', Scrontroll.index.push( event )
 
 
   it 'should be defined', ->
@@ -43,30 +44,36 @@ describe 'Class Scrontroll  ========================================', ->
 
 
 
-  describe '@controller', ->
-    it 'should be defined', ->
-      expect( Scrontroll.controller ).toBeDefined()
-
-    it 'should return FALSE (value did not change, do nothing', ->
-      expect( Scrontroll.controller( 2 ) ).toEqual( false )
-
-    it 'should return "down"', ->
-      Scrontroll.broadcast 'tracker', Scrontroll.index.push( singleEvent ) - 1
-      expect( Scrontroll.controller( 3 ) ).toEqual( 'up' )
-
-
-
-
   describe '@watch()', ->
-    it 'should subscribe a callback', ->
+    it 'should be defined', ->
+      expect( Scrontroll.watch ).toBeDefined()
 
-      @direction
+    it 'should be called on a broadcast from the engine', ->
 
+      # Set up the watcher, so it functionality can be tested
       Scrontroll.watch 'direction', ( direction ) =>
         @direction = direction
-#       Manipulate the dom! Switch some classes for disapearing menus or whatever..
 
+      # broadcast to tracker, let it bubble up to watch so @direction will get data
       Scrontroll.broadcast 'tracker', Scrontroll.index.push( singleEvent ) - 1
 
       expect( @direction ).toBe( 'up' )
+
+
+
+
+  describe '@controller()', ->
+    it 'should be defined', ->
+      expect( Scrontroll.controller ).toBeDefined()
+
+    it 'should return FALSE (value did not change, do nothing)', ->
+      expect( Scrontroll.controller( 2 ) ).toEqual( false )
+
+    it 'should return "down"', ->
+
+      # Set up the watcher, so it functionality can be tested
+      Scrontroll.watch 'direction', ( direction ) =>
+        @direction = direction
+
+      expect( Scrontroll.controller( 1 ) ).toEqual( 'down' )
 

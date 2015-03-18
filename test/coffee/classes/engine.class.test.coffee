@@ -31,6 +31,15 @@ describe 'Class Engine ----------------------------------------', ->
     Engine = new ENGINE
       'autostart' : false
 
+#      Do nothing. This just creates a @channel[ name ] so it could be broadcasted.
+    Engine.subscribe 'tracker', ->
+      return
+
+    Engine.subscribe 'direction', ->
+      return
+
+    Engine.subscribe 'speed', ->
+      return
 
 #    Simulate scroll events and inject them in the tracker core
     for event in events
@@ -47,6 +56,7 @@ describe 'Class Engine ----------------------------------------', ->
       expect( Engine.supervisor ).toBeDefined()
 
     it 'should update the event objects in @index', ->
+
       expect( Engine.index[ Engine.supervisor( 2 ) ] ).toEqual({
         'x': 20
         'y': 20

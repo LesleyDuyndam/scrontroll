@@ -48,12 +48,13 @@ class root.INIT
 
   ###
   broadcast: ( name, data ) =>
-    @counter++
 
-    if !@channel[ name ]
-      @channel[ name ] = []
+    if( @channel[ name ] isnt undefined )
 
-    for callback in @channel[ name ]
-      callback( data )
+      @counter++
+      for callback in @channel[ name ]
+        callback( data )
 
-    data
+      return data
+
+    return false
