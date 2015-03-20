@@ -14,12 +14,38 @@ class root.INIT
     @window = $( window )
 
 #    Store the registered callbacks, where 'name' is the key
+    @broadcasters = []
     @channel = {}
+
+    @composers_name_register = []
+    @composers_callback_register = {}
 
     #    If options are given, attach them
     { @autostart } = options if options
 
     @autostart = true if @autostart is undefined
+
+
+
+  ###
+
+    Check if a composer has been created
+
+  ###
+  @composerExist: ( name ) ->
+    @composers_name_register.indexOf( name )
+
+
+
+
+
+
+  addComposer: ( name, callback ) ->
+    if !@composerExist name
+      @composers_name_register.push name
+      @composers_callback_register.push  callback
+
+
 
 
 
@@ -31,6 +57,8 @@ class root.INIT
   ###
   channelExist: ( name ) ->
     Array.isArray( @channel[ name ] )
+
+
 
 
 
@@ -55,12 +83,11 @@ class root.INIT
 
 
 
+    ###
 
-  ###
+      Broadcast scroll data to subscribers
 
-    Broadcast scroll data to subscribers
-
-  ###
+    ###
   broadcast: ( name, data ) =>
 
     if @channelExist( name )
