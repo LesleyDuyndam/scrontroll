@@ -65,7 +65,6 @@ describe 'Class root.ENGINE', ->
 
       direction_return = undefined
       Engine.subscribe 'direction', ( object ) ->
-        console.log( "direction returns #{ object }" )
         direction_return = object
 
       Engine.router 2

@@ -46,14 +46,15 @@
 
   /*
   
-    direction factory
+    Speed factory
   
-    Gets the current and previous event as a argument. It calculates the scroll direction
-    and returns the results as an object.
   
-    returns {
-     y : atTop || up || atBottom || down
-     x : atLeft || left || atRight || right
+    Gets the current and previous event as a argument. It calculates the scroll speed per second
+    and returns the results as an object { x: int, y: int }.
+  
+    int = PPS ( Pixels per Second )
+  
+    returns { x: int, y: int }
    */
 
   root.speed = function(this_event, prev_event) {
@@ -70,6 +71,49 @@
       'y': (Math.abs(this_event.y - prev_event.x) / time) * 1000,
       'x': (Math.abs(this_event.x - prev_event.x) / time) * 1000
     };
+  };
+
+
+  /*
+  
+    Average speed factory
+  
+  
+    Gets the complete event array. It calculates the average scroll speed per second
+    and returns the results as an object { x: int, y: int }.
+  
+    int = PPS ( Pixels per Second )
+  
+    returns { x: int, y: int }
+   */
+
+  root.average_speed = function(event_index, max_decimals) {
+    var buffer, event, fn, i, len;
+    max_decimals = max_decimals !== void 0 ? parseInt(max_decimals) : 3;
+    console.dir(event_index);
+    buffer = {
+      x: 0,
+      y: 0
+    };
+    fn = function(event) {
+      buffer.y += event.speed.y;
+      return buffer.x += event.speed.x;
+    };
+    for (i = 0, len = event_index.length; i < len; i++) {
+      event = event_index[i];
+      fn(event);
+    }
+    if (max_decimals) {
+      return {
+        y: parseFloat((buffer.y / event_index.length).toFixed(max_decimals)),
+        x: parseFloat((buffer.x / event_index.length).toFixed(max_decimals))
+      };
+    } else {
+      return {
+        y: parseInt(buffer.y / event_index.length),
+        x: parseInt(buffer.x / event_index.length)
+      };
+    }
   };
 
 }).call(this);
@@ -114,7 +158,7 @@
 
     /*
     
-      Add subscribers callback function to call on broadcast
+      Push subscribers callback to the channel[ name ]
      */
 
     INIT.prototype.subscribe = function(name, callback) {
@@ -134,7 +178,7 @@
 
     /*
     
-      Broadcast scroll event_id to subscribers
+      Broadcast scroll data to subscribers
      */
 
     INIT.prototype.broadcast = function(name, data) {
@@ -303,7 +347,7 @@
           }
         }
       }
-      if (this.channel['speed'] !== void 0) {
+      if (this.channelExist('speed')) {
         this_event.speed = root.speed(this_event, prev_event);
         if (this_event.speed > 0) {
           this.broadcast('speed', this_event);
