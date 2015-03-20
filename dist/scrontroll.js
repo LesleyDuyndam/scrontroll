@@ -90,7 +90,6 @@
   root.average_speed = function(event_index, max_decimals) {
     var buffer, event, fn, i, len;
     max_decimals = max_decimals !== void 0 ? parseInt(max_decimals) : 3;
-    console.dir(event_index);
     buffer = {
       x: 0,
       y: 0
@@ -326,32 +325,41 @@
      */
 
     ENGINE.prototype.router = function(event_id) {
-      var prev_event, this_event;
+      var direction, prev_event, this_event;
       this_event = this.index[event_id];
       prev_event = this.index[event_id - 1];
-      if (this.channelExist('direction') || this.channelExist('vertical-direction') || this.channelExist('horizontal-direction')) {
-        this_event.direction = root.direction(this_event, prev_event);
-        if (this.channelExist('direction')) {
-          if (this_event.direction.xChanged || this_event.direction.yChanged) {
-            this.broadcast('direction', this_event);
-          }
+      direction = void 0;
+      if (this.channelExist('direction')) {
+        if (direction === void 0) {
+          direction = root.direction(this_event, prev_event);
         }
-        if (this.channelExist('horizontal-direction')) {
-          if (this_event.direction.xChanged) {
-            this.broadcast('horizontal-direction', this_event.direction.x);
-          }
+        if (direction.xChanged || direction.yChanged) {
+          this_event.direction = direction;
+          this.broadcast('direction', this_event);
         }
-        if (this.channelExist('vertical-direction')) {
-          if (this_event.direction.yChanged) {
-            this.broadcast('vertical-direction', this_event.direction.y);
-          }
+      }
+      if (this.channelExist('horizontal-direction')) {
+        if (direction === void 0) {
+          direction = root.direction(this_event, prev_event);
+        }
+        if (direction.xChanged) {
+          this.broadcast('horizontal-direction', direction.x);
+        }
+      }
+      if (this.channelExist('vertical-direction')) {
+        if (direction === void 0) {
+          direction = root.direction(this_event, prev_event);
+        }
+        if (direction.yChanged) {
+          this.broadcast('vertical-direction', direction.y);
         }
       }
       if (this.channelExist('speed')) {
         this_event.speed = root.speed(this_event, prev_event);
-        if (this_event.speed > 0) {
-          this.broadcast('speed', this_event);
-        }
+        this.broadcast('speed', this_event);
+      }
+      if (this.channelExist('average_speed')) {
+        this.broadcast('average_speed', root.average_speed(this.index));
       }
       return event_id;
     };

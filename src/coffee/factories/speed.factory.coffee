@@ -51,8 +51,6 @@ root.average_speed = ( event_index, max_decimals ) ->
 
   max_decimals = if max_decimals != undefined then parseInt( max_decimals ) else 3
 
-  console.dir event_index
-
   buffer =
     x : 0
     y : 0
@@ -66,8 +64,8 @@ root.average_speed = ( event_index, max_decimals ) ->
 
   # Return the calculated average speed with a value of max 3 decimals
   if( max_decimals )
-    y : parseFloat( ( buffer.y / event_index.length ).toFixed( max_decimals ) )
-    x : parseFloat( ( buffer.x / event_index.length ).toFixed( max_decimals ) )
+    y : parseFloat ( buffer.y / event_index.length ).toFixed( max_decimals )
+    x : parseFloat ( buffer.x / event_index.length ).toFixed( max_decimals )
   else
     y : parseInt buffer.y / event_index.length
     x : parseInt buffer.x / event_index.length
