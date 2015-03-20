@@ -5,6 +5,8 @@ module.exports = (grunt) ->
 
     pkg: grunt.file.readJSON('package.json'),
 
+    reporters: ['html'],
+
     karma: {
       unit:
         configFile: 'karma.config.coffee'
