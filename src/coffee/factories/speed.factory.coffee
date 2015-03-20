@@ -15,6 +15,8 @@ root = exports ? this
 
 root.speed = ( this_event, prev_event ) ->
 
+  @
+
   defaults =
     'y' : 0
     'x' : 0

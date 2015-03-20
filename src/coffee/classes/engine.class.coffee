@@ -61,7 +61,7 @@ class root.ENGINE extends root.TRACKER
 
 
 #   Calculate the speed and store the output in the @index[ this_event ]
-    if @channel[ 'speed' ] isnt undefined
+    if @channelExist( 'speed' )
       this_event.speed = root.speed this_event, prev_event
 
       if this_event.speed > 0
