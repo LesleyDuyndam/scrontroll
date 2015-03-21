@@ -20,6 +20,40 @@ describe 'Class root.INIT', ->
     expect( Init ).toBeDefined()
 
 
+  describe 'composerExist()',  ->
+    it 'should be defined', ->
+      expect( Init.composerExist ).toBeDefined()
+
+
+    it 'should return FALSE if the composer does not exists', ->
+      expect( Init.composerExist( 'testComposer' ) ).toBeFalsy()
+
+
+    it 'should return TRUE if the channel exists', ->
+      Init.composers_name_register.push( 'testComposer' )
+
+      expect( Init.composerExist( 'testComposer' ) ).toBeTruthy()
+
+
+
+  describe 'addComposer()', ->
+    it 'should be defined', ->
+      expect( Init.addComposer ).toBeDefined()
+
+
+    it 'should return error message if first argument is not a string', ->
+      expect( Init.addComposer( 0, callback ) ).toEqual( 'Name needs to be string, callback a function!' )
+
+
+    it 'should return error message if second argument is not a object', ->
+      expect( Init.addComposer( 'testComposer', 0 ) ).toEqual( 'Name needs to be string, callback a function!' )
+
+
+    it 'should return true on success', ->
+      expect( Init.addComposer( 'testComposer', callback ) ).toBeTruthy()
+
+
+
   describe 'channelExist()',  ->
     it 'should be defined', ->
       expect( Init.channelExist ).toBeDefined()

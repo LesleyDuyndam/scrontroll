@@ -32,8 +32,8 @@ class root.INIT
     Check if a composer has been created
 
   ###
-  @composerExist: ( name ) ->
-    @composers_name_register.indexOf( name )
+  composerExist: ( name ) ->
+    if @composers_name_register.indexOf( name ) is -1 then false else true
 
 
 
@@ -41,9 +41,17 @@ class root.INIT
 
 
   addComposer: ( name, callback ) ->
-    if !@composerExist name
-      @composers_name_register.push name
-      @composers_callback_register.push  callback
+    if name instanceof String && callback instanceof Object
+      if !@composerExist name
+        @composers_name_register.push name
+        @composers_callback_register[ name ] = callback
+        true
+
+      else
+        return 'Composer already registered!'
+
+    else
+      return 'Name needs to be string, callback a function!'
 
 
 
