@@ -20,6 +20,7 @@ class root.INIT
     @composers_name_register = []
     @composers_callback_register = {}
 
+
     #    If options are given, attach them
     { @autostart } = options if options
 
