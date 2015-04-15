@@ -41,17 +41,19 @@ describe 'Class root.INIT', ->
       expect( Init.addComposer ).toBeDefined()
 
 
-    it 'should return error message if first argument is not a string', ->
-      expect( Init.addComposer( 0, callback ) ).toEqual( 'Name needs to be string, callback a function!' )
+    it 'should return error message if first argument is not a string or array', ->
+      expect( Init.addComposer( 0, callback ) ).toEqual( "Typeof 0 should be a string or array. Currently it is a number type object" )
 
-
-    it 'should return error message if second argument is not a object', ->
-      expect( Init.addComposer( 'testComposer', 0 ) ).toEqual( 'Name needs to be string, callback a function!' )
 
 
     it 'should return true on success', ->
       expect( Init.addComposer( 'testComposer', callback ) ).toBeTruthy()
+      console.dir Init.composers_name_register
+      console.dir Init.composers_callback_register
 
+    it 'should add the composer name to the composer register', ->
+      Init.addComposer( 'testComposer', callback )
+      expect( Init.composerExist( 'testComposer' ) ).toBeTruthy()
 
 
   describe 'channelExist()',  ->

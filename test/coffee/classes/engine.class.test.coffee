@@ -64,19 +64,20 @@ describe 'Class root.ENGINE', ->
     it 'should return the DIRECTION Object if DIRECTION has subscribers', ->
 
       direction_return = undefined
+
       Engine.subscribe 'direction', ( object ) ->
         direction_return = object
 
       Engine.router 2
-
-      expect( direction_return ).toEqual( control_return )
-
-    it 'should return the VERTICAL-DIRECTION if channel HORIZONTAL-DIRECTIONS has subscribers', ->
-
-      vertical_return = undefined
-      Engine.subscribe 'vertical-direction', ( string ) ->
-        vertical_return = string
-
-      Engine.router 2
-
-      expect( vertical_return ).toEqual( control_return.direction.y )
+#
+#      expect( direction_return ).toEqual( control_return )
+#
+#    it 'should return the VERTICAL-DIRECTION if channel HORIZONTAL-DIRECTIONS has subscribers', ->
+#
+#      vertical_return = undefined
+#      Engine.subscribe 'vertical-direction', ( string ) ->
+#        vertical_return = string
+#
+#      Engine.router 2
+#
+#      expect( vertical_return ).toEqual( control_return.direction.y )

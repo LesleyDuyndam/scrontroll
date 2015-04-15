@@ -18,7 +18,7 @@ class root.INIT
     @channel = {}
 
     @composers_name_register = []
-    @composers_callback_register = {}
+    @composers_callback_register = []
 
 
     #    If options are given, attach them
@@ -40,19 +40,32 @@ class root.INIT
 
 
 
+  ###
 
-  addComposer: ( name, callback ) ->
-    if name instanceof String && callback instanceof Object
+    Add composer to the
+  ###
+  addComposer: ( name, callback ) =>
+
+    new_composer_name_array = []
+
+    if typeof name is 'string'
+      new_composer_name_array.push name
+
+    if Array.isArray name
+      new_composer_name_array = name
+
+    if new_composer_name_array.length is 0
+      return "Typeof #{ name } should be a string or array. Currently it is a #{ typeof name } type object"
+
+    for composer in new_composer_name_array
       if !@composerExist name
         @composers_name_register.push name
-        @composers_callback_register[ name ] = callback
-        true
+        @composers_callback_register.push callback
 
       else
         return 'Composer already registered!'
 
-    else
-      return 'Name needs to be string, callback a function!'
+    true
 
 
 

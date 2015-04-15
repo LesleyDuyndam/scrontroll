@@ -14,11 +14,15 @@ class root.ENGINE extends root.TRACKER
 #   Ask tracker to be notified when scroll event is triggered and execute @supervisor
     @subscribe 'tracker', @router
 
-    @addComposer [
+    composers = new Array()
+
+    composers = [
       'direction',
       'horizontal-direction',
       'vertical-direction'
-    ], root.direction_composer
+    ]
+
+    @addComposer composers, root.direction_composer
 
 
 #  @addComposer [
@@ -36,19 +40,12 @@ class root.ENGINE extends root.TRACKER
 
 
   ###
-  router: ( event_id ) =>
+  router: ( @event_id ) =>
 
-    # give direction OBJECT as argument
 
-    # @todo: Is this how a coffeescript loop with counter works?
-#    index_number for composer_name in @composer_register
-#       do ( index_number, composer_name ) ->
-
-        # Let the composer of subscribed channels calculate the output
-#        @composer[ index_number ] composer_name, event_id, ( name, data ) =>
-
-          # Broadcast the output to the subscribers
-#          @broadcast name data
+    for channel_key, channel of @composers_name_register
+      @composers_callback_register[ channel_key ] channel, @index, @event_id, ( channel_name, data )=>
+        @broadcast( channel_name, data )
 
 #   Return the current event_id
     event_id
